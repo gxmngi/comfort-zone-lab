@@ -19,7 +19,7 @@ export function ComfortStatus({ level, className }: ComfortStatusProps) {
   };
 
   return (
-    <div className={cn("medical-card", className)}>
+    <div className={cn("medical-card overflow-hidden", className)}>
       <div className="flex items-center gap-2 mb-4">
         <Brain className="h-5 w-5 text-primary" />
         <h3 className="font-display font-semibold text-lg">ML Comfort Prediction</h3>
@@ -38,10 +38,10 @@ export function ComfortStatus({ level, className }: ComfortStatusProps) {
       </div>
 
       {/* 5-Level Scale */}
-      <div className="mt-6 px-2">
-        <div className="flex justify-between mb-2">
-          <span className="text-xs text-muted-foreground">Very Uncomfortable</span>
-          <span className="text-xs text-muted-foreground">Very Comfortable</span>
+      <div className="mt-6 w-full max-w-full box-border">
+        <div className="flex justify-between mb-2 px-1">
+          <span className="text-xs text-muted-foreground whitespace-nowrap">Very Uncomfortable</span>
+          <span className="text-xs text-muted-foreground whitespace-nowrap">Very Comfortable</span>
         </div>
         <div className="flex gap-1 w-full">
           {[1, 2, 3, 4, 5].map((lvl) => (
@@ -55,7 +55,7 @@ export function ComfortStatus({ level, className }: ComfortStatusProps) {
             />
           ))}
         </div>
-        <div className="flex justify-between mt-1 w-full">
+        <div className="flex w-full mt-1">
           {[1, 2, 3, 4, 5].map((lvl) => (
             <span 
               key={lvl} 
