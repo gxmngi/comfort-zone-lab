@@ -1,12 +1,18 @@
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useProfile } from '@/hooks/useProfile';
 import { BMICard } from '@/components/profile/BMIDisplay';
+import { HealthSummaryCard } from '@/components/profile/HealthSummaryCard';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
 import { User, Phone, Calendar, Heart, AlertCircle, Pill, Edit, Wind } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { format } from 'date-fns';
+import { format, differenceInYears } from 'date-fns';
+
+function calculateAge(dateOfBirth: string | null): number | null {
+  if (!dateOfBirth) return null;
+  return differenceInYears(new Date(), new Date(dateOfBirth));
+}
 
 export default function Profile() {
   const { profile, loading } = useProfile();
@@ -14,6 +20,8 @@ export default function Profile() {
   if (loading) {
     return <DashboardLayout><div className="space-y-6"><Skeleton className="h-8 w-48" /><Skeleton className="h-64 w-full" /></div></DashboardLayout>;
   }
+
+  const age = calculateAge(profile?.date_of_birth ?? null);
 
   return (
     <DashboardLayout>
@@ -33,6 +41,7 @@ export default function Profile() {
                 <div><p className="text-xs text-muted-foreground">Email</p><p className="font-medium">{profile?.email || '—'}</p></div>
                 <div><p className="text-xs text-muted-foreground">Phone</p><p className="font-medium">{profile?.phone || '—'}</p></div>
                 <div><p className="text-xs text-muted-foreground">Date of Birth</p><p className="font-medium">{profile?.date_of_birth ? format(new Date(profile.date_of_birth), 'MMM d, yyyy') : '—'}</p></div>
+                <div><p className="text-xs text-muted-foreground">Age</p><p className="font-medium">{age !== null ? `${age} years` : '—'}</p></div>
                 <div><p className="text-xs text-muted-foreground">Gender</p><p className="font-medium">{profile?.gender || '—'}</p></div>
                 <div><p className="text-xs text-muted-foreground">Emergency Contact</p><p className="font-medium">{profile?.emergency_contact_name || '—'}</p></div>
               </div>
@@ -67,7 +76,15 @@ export default function Profile() {
             </div>
           </div>
 
-          <div><BMICard weightKg={profile?.weight_kg ?? null} heightCm={profile?.height_cm ?? null} /></div>
+          <div className="space-y-6">
+            <BMICard weightKg={profile?.weight_kg ?? null} heightCm={profile?.height_cm ?? null} />
+            <HealthSummaryCard 
+              bloodType={profile?.blood_type ?? null}
+              hasDustAllergy={profile?.dust_allergy ?? false}
+              hasAllergies={!!profile?.allergies}
+              hasMedicalConditions={!!profile?.medical_conditions}
+            />
+          </div>
         </div>
       </div>
     </DashboardLayout>
