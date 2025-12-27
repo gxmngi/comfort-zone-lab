@@ -6,7 +6,7 @@ import { EDAChart } from '@/components/dashboard/EDAChart';
 import { QuickStats } from '@/components/dashboard/QuickStats';
 import { RecommendationsCard } from '@/components/dashboard/RecommendationsCard';
 import { useProfile } from '@/hooks/useProfile';
-import { generateHRVData, generateEDAData, predictComfortLevel, HRVDataPoint, EDADataPoint } from '@/utils/mockData';
+import { generateHRVData, generateEDAData, HRVDataPoint, EDADataPoint } from '@/utils/mockData';
 
 export default function Dashboard() {
   const { profile } = useProfile();
@@ -19,18 +19,23 @@ export default function Dashboard() {
     const initialEDA = generateEDAData(30);
     setHrvData(initialHRV);
     setEdaData(initialEDA);
-    setComfortLevel(predictComfortLevel(initialHRV, initialEDA));
+    setComfortLevel(Math.floor(Math.random() * 5) + 1);
 
-    const interval = setInterval(() => {
-      setHrvData(prev => {
-        const newData = [...prev.slice(1), generateHRVData(1)[0]];
-        setTimeout(() => setComfortLevel(predictComfortLevel(newData, edaData)), 0);
-        return newData;
-      });
+    // Update HRV/EDA data every 3 seconds
+    const dataInterval = setInterval(() => {
+      setHrvData(prev => [...prev.slice(1), generateHRVData(1)[0]]);
       setEdaData(prev => [...prev.slice(1), generateEDAData(1)[0]]);
     }, 3000);
 
-    return () => clearInterval(interval);
+    // Simulate real-time comfort level updates every 5 seconds
+    const comfortInterval = setInterval(() => {
+      setComfortLevel(Math.floor(Math.random() * 5) + 1);
+    }, 5000);
+
+    return () => {
+      clearInterval(dataInterval);
+      clearInterval(comfortInterval);
+    };
   }, []);
 
   const latestHRV = hrvData[hrvData.length - 1] || { lf: 0, hf: 0 };
@@ -43,11 +48,11 @@ export default function Dashboard() {
         <QuickStats heartRate={65 + Math.random() * 15} lfPower={latestHRV.lf} hfPower={latestHRV.hf} edaTonic={latestEDA.tonic} />
         <div className="grid lg:grid-cols-3 gap-6">
           <ComfortStatus level={comfortLevel} className="lg:col-span-1" />
-          <HRVChart data={hrvData} className="lg:col-span-2" />
+          <RecommendationsCard comfortLevel={comfortLevel} hasDustAllergy={profile?.dust_allergy ?? false} className="lg:col-span-2" />
         </div>
         <div className="grid lg:grid-cols-2 gap-6">
-          <EDAChart data={edaData} />
-          <RecommendationsCard comfortLevel={comfortLevel} hasDustAllergy={profile?.dust_allergy ?? false} />
+          <HRVChart data={hrvData} className="h-[400px]" />
+          <EDAChart data={edaData} className="h-[400px]" />
         </div>
       </div>
     </DashboardLayout>
