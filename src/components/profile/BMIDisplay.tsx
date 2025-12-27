@@ -71,27 +71,35 @@ export function BMICard({ weightKg, heightCm }: { weightKg: number | null; heigh
             </div>
           </div>
 
-          {/* BMI Scale */}
+          {/* BMI Scale with Indicator */}
           <div className="mt-4">
-            <div className="flex h-3 rounded-full overflow-hidden">
-              <div className="flex-1 bg-bmi-underweight" />
-              <div className="flex-1 bg-bmi-normal" />
-              <div className="flex-1 bg-bmi-overweight" />
+            <div className="relative">
+              {/* Indicator Arrow */}
+              <div 
+                className="absolute -top-2 transform -translate-x-1/2 flex flex-col items-center z-10"
+                style={{ left: `${Math.min(100, Math.max(0, ((bmi - 15) / 20) * 100))}%` }}
+              >
+                <div className="w-0 h-0 border-l-[6px] border-r-[6px] border-t-[8px] border-l-transparent border-r-transparent border-t-foreground" />
+              </div>
+              
+              {/* Scale Bar */}
+              <div className="flex h-3 rounded-full overflow-hidden mt-2">
+                <div className="flex-1 bg-bmi-underweight" />
+                <div className="flex-1 bg-bmi-normal" />
+                <div className="flex-1 bg-bmi-overweight" />
+              </div>
+              
+              {/* Indicator Dot on Bar */}
+              <div 
+                className="absolute top-2 w-3 h-3 bg-foreground rounded-full border-2 border-background transform -translate-x-1/2 shadow-md"
+                style={{ left: `${Math.min(100, Math.max(0, ((bmi - 15) / 20) * 100))}%` }}
+              />
             </div>
-            <div className="flex justify-between mt-2 text-xs text-muted-foreground">
+            
+            <div className="flex justify-between mt-3 text-xs text-muted-foreground">
               <span>Under 18.5</span>
               <span>18.5 - 24.9</span>
               <span>Over 24.9</span>
-            </div>
-            {/* Indicator */}
-            <div className="relative mt-2">
-              <div 
-                className="absolute w-2 h-2 bg-foreground rounded-full transform -translate-x-1/2"
-                style={{ 
-                  left: `${Math.min(100, Math.max(0, ((bmi - 15) / 20) * 100))}%`,
-                  top: '-20px'
-                }}
-              />
             </div>
           </div>
 
