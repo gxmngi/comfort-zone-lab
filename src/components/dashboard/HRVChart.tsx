@@ -12,7 +12,7 @@ export function HRVChart({ data, className }: HRVChartProps) {
   const latestRatio = data.length > 0 ? data[data.length - 1].lfHfRatio : 0;
 
   return (
-    <div className={cn("medical-card", className)}>
+    <div className={cn("medical-card overflow-hidden flex flex-col", className)}>
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Activity className="h-5 w-5 text-primary" />
@@ -55,7 +55,7 @@ export function HRVChart({ data, className }: HRVChartProps) {
       </div>
 
       {/* Chart */}
-      <div className="h-64">
+      <div className="flex-1 min-h-0">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
