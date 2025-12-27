@@ -2,8 +2,9 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useProfile } from '@/hooks/useProfile';
 import { BMICard } from '@/components/profile/BMIDisplay';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
-import { User, Phone, Calendar, Heart, AlertCircle, Pill, Edit } from 'lucide-react';
+import { User, Phone, Calendar, Heart, AlertCircle, Pill, Edit, Wind } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 
@@ -48,7 +49,15 @@ export default function Profile() {
 
             {/* Health Info */}
             <div className="medical-card">
-              <h3 className="font-display font-semibold text-lg mb-4 flex items-center gap-2"><Heart className="h-5 w-5 text-primary" />Health Information</h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-display font-semibold text-lg flex items-center gap-2"><Heart className="h-5 w-5 text-primary" />Health Information</h3>
+                {profile?.dust_allergy && (
+                  <Badge variant="destructive" className="flex items-center gap-1.5 bg-medical-alert-warning/10 text-medical-alert-warning border-medical-alert-warning/30 hover:bg-medical-alert-warning/20">
+                    <Wind className="h-3.5 w-3.5" />
+                    Dust Allergy Detected
+                  </Badge>
+                )}
+              </div>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div><p className="text-xs text-muted-foreground">Blood Type</p><p className="font-medium">{profile?.blood_type || '—'}</p></div>
                 <div><p className="text-xs text-muted-foreground">Allergies</p><p className="font-medium">{profile?.allergies || '—'}</p></div>
