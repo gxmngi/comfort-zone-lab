@@ -97,14 +97,14 @@ export default function Dashboard() {
         <div className="grid lg:grid-cols-[2fr_3fr] gap-6">
           {/* Left Column: Comfort Focus (narrower) */}
           <div className="flex flex-col gap-6">
-            <ComfortStatus level={comfortLevel} className="h-[280px]" />
-            <RecommendationsCard comfortLevel={comfortLevel} hasDustAllergy={profile?.dust_allergy ?? false} className="flex-1 min-h-[280px]" />
+            <ComfortStatus level={comfortLevel} className="h-[320px]" />
+            <RecommendationsCard comfortLevel={comfortLevel} hasDustAllergy={profile?.dust_allergy ?? false} className="h-[320px]" />
           </div>
           
           {/* Right Column: Physiological Data (wider) */}
           <div className="flex flex-col gap-6">
-            <HRVChart data={hrvData} className="h-[280px] overflow-hidden" />
-            <EDAChart data={edaData} className="h-[280px] overflow-hidden" />
+            <HRVChart data={hrvData} className="h-[320px] overflow-hidden" />
+            <EDAChart data={edaData} className="h-[320px] overflow-hidden" />
           </div>
         </div>
       </div>
