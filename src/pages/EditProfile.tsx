@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import { useProfile, calculateBMI, getBMICategory } from '@/hooks/useProfile';
+import { useProfile } from '@/hooks/useProfile';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { BMIDisplay } from '@/components/profile/BMIDisplay';
 import { User, Activity, Heart, ArrowLeft } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -15,7 +16,7 @@ export default function EditProfile() {
   const { profile, loading, updateProfile } = useProfile();
   const navigate = useNavigate();
   const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({ first_name: '', last_name: '', phone: '', date_of_birth: '', gender: '', emergency_contact_name: '', emergency_contact_phone: '', weight_kg: '', height_cm: '', blood_type: '', allergies: '', medical_conditions: '', medications: '' });
+  const [form, setForm] = useState({ first_name: '', last_name: '', phone: '', date_of_birth: '', gender: '', emergency_contact_name: '', emergency_contact_phone: '', weight_kg: '', height_cm: '', blood_type: '', allergies: '', medical_conditions: '', medications: '', dust_allergy: false });
 
   useEffect(() => {
     if (profile) {
@@ -25,7 +26,8 @@ export default function EditProfile() {
         emergency_contact_name: profile.emergency_contact_name || '', emergency_contact_phone: profile.emergency_contact_phone || '',
         weight_kg: profile.weight_kg?.toString() || '', height_cm: profile.height_cm?.toString() || '',
         blood_type: profile.blood_type || '', allergies: profile.allergies || '',
-        medical_conditions: profile.medical_conditions || '', medications: profile.medications || ''
+        medical_conditions: profile.medical_conditions || '', medications: profile.medications || '',
+        dust_allergy: profile.dust_allergy || false
       });
     }
   }, [profile]);
@@ -37,6 +39,7 @@ export default function EditProfile() {
       ...form,
       weight_kg: form.weight_kg ? parseFloat(form.weight_kg) : null,
       height_cm: form.height_cm ? parseFloat(form.height_cm) : null,
+      dust_allergy: form.dust_allergy,
     });
     setSaving(false);
     navigate('/profile');
@@ -86,6 +89,13 @@ export default function EditProfile() {
             <div className="grid sm:grid-cols-2 gap-4">
               <div><Label>Blood Type</Label><Select value={form.blood_type} onValueChange={(v) => setForm({...form, blood_type: v})}><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger><SelectContent><SelectItem value="A+">A+</SelectItem><SelectItem value="A-">A-</SelectItem><SelectItem value="B+">B+</SelectItem><SelectItem value="B-">B-</SelectItem><SelectItem value="AB+">AB+</SelectItem><SelectItem value="AB-">AB-</SelectItem><SelectItem value="O+">O+</SelectItem><SelectItem value="O-">O-</SelectItem></SelectContent></Select></div>
               <div><Label>Allergies</Label><Input value={form.allergies} onChange={(e) => setForm({...form, allergies: e.target.value})} placeholder="e.g., Penicillin, Peanuts" /></div>
+              <div className="sm:col-span-2 flex items-center justify-between p-4 bg-muted/30 rounded-lg border border-border/50">
+                <div className="space-y-0.5">
+                  <Label htmlFor="dust-allergy" className="text-sm font-medium cursor-pointer">Dust Allergy</Label>
+                  <p className="text-xs text-muted-foreground">Enable if you have dust sensitivity (used by ML model)</p>
+                </div>
+                <Switch id="dust-allergy" checked={form.dust_allergy} onCheckedChange={(checked) => setForm({...form, dust_allergy: checked})} />
+              </div>
               <div className="sm:col-span-2"><Label>Medical Conditions</Label><Textarea value={form.medical_conditions} onChange={(e) => setForm({...form, medical_conditions: e.target.value})} /></div>
               <div className="sm:col-span-2"><Label>Medications</Label><Textarea value={form.medications} onChange={(e) => setForm({...form, medications: e.target.value})} /></div>
             </div>
