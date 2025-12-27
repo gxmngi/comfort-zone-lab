@@ -4,9 +4,12 @@ import { ComfortStatus } from '@/components/dashboard/ComfortStatus';
 import { HRVChart } from '@/components/dashboard/HRVChart';
 import { EDAChart } from '@/components/dashboard/EDAChart';
 import { QuickStats } from '@/components/dashboard/QuickStats';
+import { RecommendationsCard } from '@/components/dashboard/RecommendationsCard';
+import { useProfile } from '@/hooks/useProfile';
 import { generateHRVData, generateEDAData, predictComfortLevel, HRVDataPoint, EDADataPoint } from '@/utils/mockData';
 
 export default function Dashboard() {
+  const { profile } = useProfile();
   const [hrvData, setHrvData] = useState<HRVDataPoint[]>([]);
   const [edaData, setEdaData] = useState<EDADataPoint[]>([]);
   const [comfortLevel, setComfortLevel] = useState(3);
@@ -42,7 +45,10 @@ export default function Dashboard() {
           <ComfortStatus level={comfortLevel} className="lg:col-span-1" />
           <HRVChart data={hrvData} className="lg:col-span-2" />
         </div>
-        <EDAChart data={edaData} />
+        <div className="grid lg:grid-cols-2 gap-6">
+          <EDAChart data={edaData} />
+          <RecommendationsCard comfortLevel={comfortLevel} hasDustAllergy={profile?.dust_allergy ?? false} />
+        </div>
       </div>
     </DashboardLayout>
   );
