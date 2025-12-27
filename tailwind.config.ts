@@ -13,6 +13,10 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        display: ['Space Grotesk', 'system-ui', 'sans-serif'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -57,6 +61,25 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        comfort: {
+          1: "hsl(var(--comfort-1))",
+          2: "hsl(var(--comfort-2))",
+          3: "hsl(var(--comfort-3))",
+          4: "hsl(var(--comfort-4))",
+          5: "hsl(var(--comfort-5))",
+        },
+        bmi: {
+          underweight: "hsl(var(--bmi-underweight))",
+          normal: "hsl(var(--bmi-normal))",
+          overweight: "hsl(var(--bmi-overweight))",
+        },
+        chart: {
+          lf: "hsl(var(--chart-lf))",
+          hf: "hsl(var(--chart-hf))",
+          ratio: "hsl(var(--chart-ratio))",
+          tonic: "hsl(var(--chart-tonic))",
+          phasic: "hsl(var(--chart-phasic))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -65,25 +88,27 @@ export default {
       },
       keyframes: {
         "accordion-down": {
-          from: {
-            height: "0",
-          },
-          to: {
-            height: "var(--radix-accordion-content-height)",
-          },
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
-          from: {
-            height: "var(--radix-accordion-content-height)",
-          },
-          to: {
-            height: "0",
-          },
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
+        "pulse-glow": {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.7" },
+        },
+        "slide-in": {
+          from: { opacity: "0", transform: "translateY(10px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "pulse-glow": "pulse-glow 2s ease-in-out infinite",
+        "slide-in": "slide-in 0.3s ease-out",
       },
     },
   },
