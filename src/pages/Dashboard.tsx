@@ -94,17 +94,17 @@ export default function Dashboard() {
         <QuickStats heartRate={65 + Math.random() * 15} lfPower={latestHRV.lf} hfPower={latestHRV.hf} edaTonic={latestEDA.tonic} />
         
         {/* Two-column layout: Left = Comfort Focus, Right = Physiological Data */}
-        <div className="grid lg:grid-cols-[2fr_3fr] gap-6">
+        <div className="grid lg:grid-cols-[2fr_3fr] gap-6 items-stretch">
           {/* Left Column: Comfort Focus (narrower) */}
           <div className="flex flex-col gap-6">
-            <ComfortStatus level={comfortLevel} className="min-h-[320px]" />
-            <RecommendationsCard comfortLevel={comfortLevel} hasDustAllergy={profile?.dust_allergy ?? false} className="h-[320px]" />
+            <ComfortStatus level={comfortLevel} className="flex-1" />
+            <RecommendationsCard comfortLevel={comfortLevel} hasDustAllergy={profile?.dust_allergy ?? false} className="flex-1" />
           </div>
           
           {/* Right Column: Physiological Data (wider) */}
           <div className="flex flex-col gap-6">
-            <HRVChart data={hrvData} className="h-[320px] overflow-hidden" />
-            <EDAChart data={edaData} className="h-[320px] overflow-hidden" />
+            <HRVChart data={hrvData} className="flex-1 min-h-[280px]" />
+            <EDAChart data={edaData} className="flex-1 min-h-[280px]" />
           </div>
         </div>
       </div>
