@@ -20,6 +20,7 @@ export interface Profile {
   allergies: string | null;
   medical_conditions: string | null;
   medications: string | null;
+  dust_allergy: boolean | null;
   created_at: string;
   updated_at: string;
 }

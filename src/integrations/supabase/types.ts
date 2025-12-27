@@ -62,6 +62,7 @@ export type Database = {
           blood_type: string | null
           created_at: string
           date_of_birth: string | null
+          dust_allergy: boolean | null
           email: string | null
           emergency_contact_name: string | null
           emergency_contact_phone: string | null
@@ -82,6 +83,7 @@ export type Database = {
           blood_type?: string | null
           created_at?: string
           date_of_birth?: string | null
+          dust_allergy?: boolean | null
           email?: string | null
           emergency_contact_name?: string | null
           emergency_contact_phone?: string | null
@@ -102,6 +104,7 @@ export type Database = {
           blood_type?: string | null
           created_at?: string
           date_of_birth?: string | null
+          dust_allergy?: boolean | null
           email?: string | null
           emergency_contact_name?: string | null
           emergency_contact_phone?: string | null
