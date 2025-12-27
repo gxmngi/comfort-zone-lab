@@ -38,7 +38,7 @@ export function ComfortStatus({ level, className }: ComfortStatusProps) {
       </div>
 
       {/* 5-Level Scale */}
-      <div className="mt-6">
+      <div className="mt-6 px-4">
         <div className="flex justify-between mb-2">
           <span className="text-xs text-muted-foreground">Very Uncomfortable</span>
           <span className="text-xs text-muted-foreground">Very Comfortable</span>
