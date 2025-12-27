@@ -1,11 +1,13 @@
 import { Leaf, AlertTriangle, Wind, Sparkles } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface RecommendationsCardProps {
   comfortLevel: number;
   hasDustAllergy?: boolean;
+  className?: string;
 }
 
-export function RecommendationsCard({ comfortLevel, hasDustAllergy = false }: RecommendationsCardProps) {
+export function RecommendationsCard({ comfortLevel, hasDustAllergy = false, className }: RecommendationsCardProps) {
   const getRecommendations = () => {
     if (comfortLevel <= 2) {
       return {
@@ -36,7 +38,7 @@ export function RecommendationsCard({ comfortLevel, hasDustAllergy = false }: Re
   const { status, icon: Icon, title, recommendations } = getRecommendations();
 
   return (
-    <div className="medical-card">
+    <div className={cn("medical-card", className)}>
       <div className="flex items-center gap-3 mb-4">
         <div className={`p-2 rounded-lg ${
           status === 'warning' 
