@@ -26,19 +26,19 @@ export function ComfortStatus({ level, className }: ComfortStatusProps) {
       </div>
       
       {/* Main Status Display */}
-      <div className="flex flex-col items-center py-6">
+      <div className="flex flex-col items-center py-4">
         <div className={cn(
-          "w-24 h-24 rounded-full flex items-center justify-center text-4xl font-display font-bold text-white shadow-lg animate-pulse-glow",
+          "w-20 h-20 rounded-full flex items-center justify-center text-3xl font-display font-bold text-white shadow-lg animate-pulse-glow",
           colorClasses[level]
         )}>
           {level}
         </div>
-        <h4 className="mt-4 font-display font-semibold text-xl">{details.label}</h4>
+        <h4 className="mt-3 font-display font-semibold text-xl">{details.label}</h4>
         <p className="text-sm text-muted-foreground mt-1">{details.description}</p>
       </div>
 
       {/* 5-Level Scale */}
-      <div className="mt-6 w-full max-w-full box-border">
+      <div className="mt-4 px-4 pb-4 w-full">
         <div className="flex justify-between mb-2 px-1">
           <span className="text-xs text-muted-foreground whitespace-nowrap">Very Uncomfortable</span>
           <span className="text-xs text-muted-foreground whitespace-nowrap">Very Comfortable</span>

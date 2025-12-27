@@ -97,7 +97,7 @@ export default function Dashboard() {
         <div className="grid lg:grid-cols-[2fr_3fr] gap-6">
           {/* Left Column: Comfort Focus (narrower) */}
           <div className="flex flex-col gap-6">
-            <ComfortStatus level={comfortLevel} className="h-[320px]" />
+            <ComfortStatus level={comfortLevel} className="min-h-[320px]" />
             <RecommendationsCard comfortLevel={comfortLevel} hasDustAllergy={profile?.dust_allergy ?? false} className="h-[320px]" />
           </div>
           
