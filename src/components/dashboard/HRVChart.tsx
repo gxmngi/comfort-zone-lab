@@ -80,21 +80,37 @@ export function HRVChart({ data, className }: HRVChartProps) {
                 fontSize: '12px'
               }}
             />
+            <defs>
+              <linearGradient id="lfGradient" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="85%" stopColor="hsl(var(--chart-lf))" stopOpacity={1} />
+                <stop offset="100%" stopColor="hsl(var(--chart-lf))" stopOpacity={0.3} />
+              </linearGradient>
+              <linearGradient id="hfGradient" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="85%" stopColor="hsl(var(--chart-hf))" stopOpacity={1} />
+                <stop offset="100%" stopColor="hsl(var(--chart-hf))" stopOpacity={0.3} />
+              </linearGradient>
+            </defs>
             <Line 
               type="monotone" 
               dataKey="lf" 
-              stroke="hsl(var(--chart-lf))" 
+              stroke="url(#lfGradient)" 
               strokeWidth={2}
               dot={false}
               name="LF Power"
+              isAnimationActive={true}
+              animationDuration={800}
+              animationEasing="ease-in-out"
             />
             <Line 
               type="monotone" 
               dataKey="hf" 
-              stroke="hsl(var(--chart-hf))" 
+              stroke="url(#hfGradient)" 
               strokeWidth={2}
               dot={false}
               name="HF Power"
+              isAnimationActive={true}
+              animationDuration={800}
+              animationEasing="ease-in-out"
             />
           </LineChart>
         </ResponsiveContainer>

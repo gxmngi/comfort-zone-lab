@@ -96,23 +96,43 @@ export function EDAChart({ data, className }: EDAChartProps) {
                 name === 'tonic' ? 'Tonic (SCL)' : 'Phasic (SCR)'
               ]}
             />
+            <defs>
+              <linearGradient id="tonicStrokeGradient" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="85%" stopColor="hsl(var(--chart-tonic))" stopOpacity={1} />
+                <stop offset="100%" stopColor="hsl(var(--chart-tonic))" stopOpacity={0.3} />
+              </linearGradient>
+              <linearGradient id="tonicFillGradient" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="85%" stopColor="hsl(var(--chart-tonic))" stopOpacity={0.2} />
+                <stop offset="100%" stopColor="hsl(var(--chart-tonic))" stopOpacity={0.05} />
+              </linearGradient>
+              <linearGradient id="phasicGradient" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="85%" stopColor="hsl(var(--chart-phasic))" stopOpacity={1} />
+                <stop offset="100%" stopColor="hsl(var(--chart-phasic))" stopOpacity={0.3} />
+              </linearGradient>
+            </defs>
             <Area
               yAxisId="tonic"
               type="monotone"
               dataKey="tonic"
-              stroke="hsl(var(--chart-tonic))"
-              fill="hsl(var(--chart-tonic) / 0.2)"
+              stroke="url(#tonicStrokeGradient)"
+              fill="url(#tonicFillGradient)"
               strokeWidth={2}
               name="tonic"
+              isAnimationActive={true}
+              animationDuration={800}
+              animationEasing="ease-in-out"
             />
             <Line
               yAxisId="phasic"
               type="monotone"
               dataKey="phasic"
-              stroke="hsl(var(--chart-phasic))"
+              stroke="url(#phasicGradient)"
               strokeWidth={2}
               dot={false}
               name="phasic"
+              isAnimationActive={true}
+              animationDuration={800}
+              animationEasing="ease-in-out"
             />
           </ComposedChart>
         </ResponsiveContainer>
