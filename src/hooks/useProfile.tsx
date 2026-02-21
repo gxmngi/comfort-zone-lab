@@ -21,6 +21,8 @@ export interface Profile {
   medical_conditions: string | null;
   medications: string | null;
   dust_allergy: boolean | null;
+  role: 'user' | 'doctor' | null;
+  doctor_status: 'pending' | 'approved' | null;
   created_at: string;
   updated_at: string;
 }
@@ -58,7 +60,7 @@ export function useProfile() {
         variant: 'destructive',
       });
     } else {
-      setProfile(data);
+      setProfile({ ...data, role: (data as any).role || 'user' } as Profile);
     }
     setLoading(false);
   };

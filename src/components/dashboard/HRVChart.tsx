@@ -4,12 +4,15 @@ import { Activity } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface HRVChartProps {
-  data: HRVDataPoint[];
+  data: any[];
   className?: string;
 }
 
 export function HRVChart({ data, className }: HRVChartProps) {
-  const latestRatio = data.length > 0 ? data[data.length - 1].lfHfRatio : 0;
+  // Safe access for latest calculated ratio
+  const latestRatio = data.length > 0 && 'lfHfRatio' in data[data.length - 1] 
+    ? (data[data.length - 1] as any).lfHfRatio 
+    : 0;
 
   return (
     <div className={cn("medical-card overflow-hidden flex flex-col", className)}>

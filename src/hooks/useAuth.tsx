@@ -6,7 +6,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signUp: (email: string, password: string, firstName?: string, lastName?: string) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, firstName?: string, lastName?: string, role?: 'user' | 'doctor') => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
 }
@@ -38,10 +38,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, firstName?: string, lastName?: string) => {
+  const signUp = async (email: string, password: string, firstName?: string, lastName?: string, role: 'user' | 'doctor' = 'user') => {
     const redirectUrl = `${window.location.origin}/`;
     
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -49,9 +49,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         data: {
           first_name: firstName,
           last_name: lastName,
+          role: role,
+          doctor_status: role === 'doctor' ? 'pending' : null,
         }
       }
     });
+
+    // After signup, update the profile with role and doctor_status
+    // The Supabase trigger creates the profile but may not include these fields
+    if (!error && data?.user) {
+      await supabase
+        .from('profiles')
+        .update({
+          role: role,
+          doctor_status: role === 'doctor' ? 'pending' : null,
+        })
+        .eq('user_id', data.user.id);
+    }
+
     return { error };
   };
 

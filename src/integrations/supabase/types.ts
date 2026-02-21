@@ -62,6 +62,7 @@ export type Database = {
           blood_type: string | null
           created_at: string
           date_of_birth: string | null
+          doctor_status: string | null
           dust_allergy: boolean | null
           email: string | null
           emergency_contact_name: string | null
@@ -74,6 +75,7 @@ export type Database = {
           medical_conditions: string | null
           medications: string | null
           phone: string | null
+          role: string | null
           updated_at: string
           user_id: string
           weight_kg: number | null
@@ -83,6 +85,7 @@ export type Database = {
           blood_type?: string | null
           created_at?: string
           date_of_birth?: string | null
+          doctor_status?: string | null
           dust_allergy?: boolean | null
           email?: string | null
           emergency_contact_name?: string | null
@@ -95,6 +98,7 @@ export type Database = {
           medical_conditions?: string | null
           medications?: string | null
           phone?: string | null
+          role?: string | null
           updated_at?: string
           user_id: string
           weight_kg?: number | null
@@ -104,6 +108,7 @@ export type Database = {
           blood_type?: string | null
           created_at?: string
           date_of_birth?: string | null
+          doctor_status?: string | null
           dust_allergy?: boolean | null
           email?: string | null
           emergency_contact_name?: string | null
@@ -116,6 +121,7 @@ export type Database = {
           medical_conditions?: string | null
           medications?: string | null
           phone?: string | null
+          role?: string | null
           updated_at?: string
           user_id?: string
           weight_kg?: number | null

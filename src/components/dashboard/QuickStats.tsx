@@ -7,9 +7,10 @@ interface QuickStatsProps {
   hfPower: number;
   edaTonic: number;
   className?: string;
+  simpleMode?: boolean;
 }
 
-export function QuickStats({ heartRate, lfPower, hfPower, edaTonic, className }: QuickStatsProps) {
+export function QuickStats({ heartRate, lfPower, hfPower, edaTonic, className, simpleMode = false }: QuickStatsProps) {
   const stats = [
     {
       label: 'Heart Rate',
@@ -45,19 +46,21 @@ export function QuickStats({ heartRate, lfPower, hfPower, edaTonic, className }:
     },
   ];
 
+  const displayStats = simpleMode ? stats.filter(s => s.label === 'Heart Rate') : stats;
+
   return (
-    <div className={cn("grid grid-cols-2 lg:grid-cols-4 gap-4", className)}>
-      {stats.map((stat) => (
+    <div className={cn("grid gap-4", simpleMode ? "grid-cols-1 md:grid-cols-2" : "grid-cols-2 lg:grid-cols-4", className)}>
+      {displayStats.map((stat) => (
         <div key={stat.label} className="medical-card">
           <div className="flex items-center gap-3">
             <div className={cn("p-2 rounded-lg", stat.bgColor)}>
               <stat.icon className={cn("h-5 w-5", stat.color)} />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">{stat.label}</p>
+              <p className="text-sm text-muted-foreground">{stat.label}</p>
               <div className="flex items-baseline gap-1">
-                <span className="text-xl font-display font-bold">{stat.value}</span>
-                <span className="text-xs text-muted-foreground">{stat.unit}</span>
+                <span className="text-3xl font-bold">{stat.value}</span>
+                <span className="text-sm text-muted-foreground">{stat.unit}</span>
               </div>
             </div>
           </div>

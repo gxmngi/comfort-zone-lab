@@ -4,7 +4,7 @@ import { Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface EDAChartProps {
-  data: EDADataPoint[];
+  data: any[];
   className?: string;
 }
 
