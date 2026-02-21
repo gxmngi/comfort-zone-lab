@@ -95,8 +95,9 @@ export function generateEDAData(count: number = 30): EDADataPoint[] {
 }
 
 // Simulate ML comfort level prediction based on HRV/EDA data
+// Returns 1 (Uncomfortable) or 2 (Comfortable)
 export function predictComfortLevel(hrvData: HRVDataPoint[], edaData: EDADataPoint[]): number {
-  if (hrvData.length === 0 || edaData.length === 0) return 3;
+  if (hrvData.length === 0 || edaData.length === 0) return 2; // Default to Comfortable
   
   const latestHRV = hrvData[hrvData.length - 1];
   const recentEDA = edaData.slice(-5);
@@ -108,34 +109,28 @@ export function predictComfortLevel(hrvData: HRVDataPoint[], edaData: EDADataPoi
   const lfHfRatio = latestHRV.lfHfRatio;
   const avgPhasic = recentEDA.reduce((sum, d) => sum + d.phasic, 0) / recentEDA.length;
   
-  let score = 3; // Start neutral
+  let score = 0;
   
-  // LF/HF ratio influence
+  // LF/HF ratio influence (lower = more relaxed)
+  if (lfHfRatio < 2.5) score += 1;
   if (lfHfRatio < 1.5) score += 1;
-  else if (lfHfRatio < 2.5) score += 0.5;
-  else if (lfHfRatio > 4) score -= 1;
-  else if (lfHfRatio > 3) score -= 0.5;
   
-  // Phasic activity influence
-  if (avgPhasic < 0.2) score += 0.5;
-  else if (avgPhasic > 1) score -= 0.5;
-  else if (avgPhasic > 1.5) score -= 1;
+  // Phasic activity influence (lower = more comfortable)
+  if (avgPhasic < 0.5) score += 1;
+  if (avgPhasic < 0.2) score += 1;
   
   // Add some randomness for realism
-  score += (Math.random() - 0.5) * 0.5;
+  score += (Math.random() - 0.5);
   
-  // Clamp to 1-5
-  return Math.max(1, Math.min(5, Math.round(score)));
+  // Return 2 (Comfortable) if score >= 2, otherwise 1 (Uncomfortable)
+  return score >= 2 ? 2 : 1;
 }
 
-// Get comfort level details
+// Get comfort level details (2 levels only)
 export function getComfortDetails(level: number): { label: string; description: string } {
   const details: Record<number, { label: string; description: string }> = {
-    1: { label: 'Very Uncomfortable', description: 'High stress indicators detected' },
-    2: { label: 'Uncomfortable', description: 'Elevated stress response' },
-    3: { label: 'Neutral', description: 'Balanced physiological state' },
-    4: { label: 'Comfortable', description: 'Relaxed state detected' },
-    5: { label: 'Very Comfortable', description: 'Optimal relaxation state' },
+    1: { label: 'Uncomfortable', description: 'Elevated stress indicators detected' },
+    2: { label: 'Comfortable', description: 'Relaxed state detected' },
   };
-  return details[level] || details[3];
+  return details[level] || details[2];
 }

@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   User, 
@@ -7,10 +7,12 @@ import {
   LogOut,
   Activity,
   Menu,
-  X
+  X,
+  ArrowLeft
 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { cn } from '@/lib/utils';
@@ -19,15 +21,10 @@ interface DashboardLayoutProps {
   children: ReactNode;
 }
 
-const navItems = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/profile', label: 'Profile', icon: User },
-  { href: '/history', label: 'History', icon: History },
-];
-
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const location = useLocation();
   const navigate = useNavigate();
+  const { patientId } = useParams<{ patientId: string }>();
   const { signOut, user } = useAuth();
   const { profile } = useProfile();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -42,15 +39,33 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     ? `${profile.first_name} ${profile.last_name}`
     : user?.email;
 
+  const navItems = [
+    { 
+      href: patientId ? `/dashboard/${patientId}` : '/dashboard', 
+      label: 'Dashboard', 
+      icon: LayoutDashboard 
+    },
+    { 
+      href: patientId ? `/profile/${patientId}` : '/profile', 
+      label: 'Profile', 
+      icon: User 
+    },
+    { 
+      href: patientId ? `/history/${patientId}` : '/history', 
+      label: 'History', 
+      icon: History 
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-background">
       {/* Mobile Header */}
       <header className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-card border-b border-border px-4 py-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Activity className="h-6 w-6 text-primary" />
+          <Link to="/menu" className="flex items-center gap-2">
+            <img src="/walai-logo.png" alt="Logo" className="h-8 w-auto" />
             <span className="font-display font-semibold text-lg">ComfortMonitor</span>
-          </div>
+          </Link>
           <Button
             variant="ghost"
             size="icon"
@@ -78,24 +93,35 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="p-6 border-b border-sidebar-border">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary">
-                <Activity className="h-6 w-6 text-primary-foreground" />
-              </div>
+            <Link to="/menu" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+              <img src="/walai-logo.png" alt="Walai Logo" className="h-12 w-auto" />
               <div>
                 <h1 className="font-display font-bold text-lg text-sidebar-foreground">
                   ComfortMonitor
                 </h1>
                 <p className="text-xs text-muted-foreground">Personal Health</p>
               </div>
-            </div>
+            </Link>
           </div>
 
           {/* Navigation */}
           <nav className="flex-1 p-4 space-y-1">
+            <Link
+              to={profile?.role === 'doctor' ? '/doctor/patient-list' : '/menu'}
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-foreground bg-muted/50 border border-border hover:bg-muted hover:text-primary transition-all duration-200 shadow-sm group"
+            >
+              <ArrowLeft className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+              <span className="font-semibold">Back</span>
+            </Link>
+            
+            <div className="my-4 border-t border-sidebar-border/50 mx-2" />
+
             {navItems.map((item) => {
+              // Exact match or sub-path match for profile, but careful with dashboard/history
               const isActive = location.pathname === item.href || 
-                (item.href === '/profile' && location.pathname.startsWith('/profile'));
+                (item.href !== '/dashboard' && item.href !== '/history' && location.pathname.startsWith(item.href));
+              
               return (
                 <Link
                   key={item.href}
@@ -124,6 +150,9 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-sidebar-foreground truncate">
                   {displayName}
+                </p>
+                <p className="text-xs text-muted-foreground capitalize">
+                  {profile?.role || 'User'}
                 </p>
               </div>
             </div>

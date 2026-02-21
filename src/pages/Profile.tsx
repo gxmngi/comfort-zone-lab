@@ -4,10 +4,12 @@ import { BMICard } from '@/components/profile/BMIDisplay';
 import { HealthSummaryCard } from '@/components/profile/HealthSummaryCard';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { User, Phone, Calendar, Heart, AlertCircle, Pill, Edit, Wind } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format, differenceInYears } from 'date-fns';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 function calculateAge(dateOfBirth: string | null): number | null {
   if (!dateOfBirth) return null;
@@ -15,20 +17,51 @@ function calculateAge(dateOfBirth: string | null): number | null {
 }
 
 export default function Profile() {
-  const { profile, loading } = useProfile();
+  const { profile: userProfile, loading: userLoading } = useProfile();
+  const { patientId } = useParams<{ patientId: string }>();
+  const [patientProfile, setPatientProfile] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (patientId) {
+        setLoading(true);
+        const { data } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', patientId)
+          .single();
+        setPatientProfile(data);
+        setLoading(false);
+      } else {
+        // If no patientId, rely on userProfile from hook
+        setLoading(userLoading);
+      }
+    };
+    fetchProfile();
+  }, [patientId, userLoading]);
+
+  // Use patientProfile if patientId exists, otherwise fall back to userProfile
+  const displayProfile = patientId ? patientProfile : userProfile;
 
   if (loading) {
     return <DashboardLayout><div className="space-y-6"><Skeleton className="h-8 w-48" /><Skeleton className="h-64 w-full" /></div></DashboardLayout>;
   }
 
+  const profile = displayProfile;
   const age = calculateAge(profile?.date_of_birth ?? null);
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <div><h1 className="font-display text-2xl font-bold">Profile</h1><p className="text-muted-foreground">Your health information</p></div>
-          <Button asChild><Link to="/profile/edit"><Edit className="h-4 w-4 mr-2" />Edit Profile</Link></Button>
+          <div>
+             <h1 className="font-display text-2xl font-bold">{patientId ? `Patient Profile: ${profile?.first_name} ${profile?.last_name}` : 'Profile'}</h1>
+             <p className="text-muted-foreground">{patientId ? "Patient health information" : "Your health information"}</p>
+          </div>
+          {!patientId && (
+            <Button asChild><Link to="/profile/edit"><Edit className="h-4 w-4 mr-2" />Edit Profile</Link></Button>
+          )}
         </div>
 
         <div className="grid lg:grid-cols-3 gap-6">
