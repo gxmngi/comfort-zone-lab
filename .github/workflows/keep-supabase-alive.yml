@@ -1,0 +1,55 @@
+name: 🛡️ Keep Supabase Alive
+
+on:
+  schedule:
+    # รันทุก 3 วัน เวลา 08:00 UTC (15:00 เวลาไทย)
+    - cron: "0 8 */3 * *"
+  workflow_dispatch: # กด run มือได้จาก GitHub Actions tab
+
+jobs:
+  ping-supabase:
+    name: Ping Supabase Database
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🔍 Ping profiles table
+        run: |
+          echo "📡 Pinging Supabase project: Comfort (tcbxpodmprqyzszoyrno)"
+
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/profiles?select=id&limit=1" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}")
+
+          echo "✅ HTTP Status: $RESPONSE"
+
+          if [ "$RESPONSE" -ge 200 ] && [ "$RESPONSE" -lt 300 ]; then
+            echo "🟢 Supabase is alive and responding!"
+          else
+            echo "🔴 Unexpected response: $RESPONSE"
+            exit 1
+          fi
+
+      - name: 🔍 Ping comfort_readings table
+        run: |
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/comfort_readings?select=id&limit=1" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}")
+
+          echo "✅ HTTP Status: $RESPONSE"
+
+          if [ "$RESPONSE" -ge 200 ] && [ "$RESPONSE" -lt 300 ]; then
+            echo "🟢 comfort_readings table OK!"
+          else
+            echo "🔴 Unexpected response: $RESPONSE"
+            exit 1
+          fi
+
+      - name: 📊 Log Summary
+        run: |
+          echo "========================================="
+          echo "  Supabase Keep-Alive Ping Complete"
+          echo "  Project: Comfort (tcbxpodmprqyzszoyrno)"
+          echo "  Time: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          echo "========================================="
