@@ -30,7 +30,7 @@ const menuItems = [
     title: "นัดหมายคลินิก",
     subtitle: "Appointment",
     colorVariant: "teal" as const,
-    href: "#",
+    href: "/appointments",
   },
   {
     icon: HeartPulse,
@@ -38,48 +38,6 @@ const menuItems = [
     subtitle: "Health Checkup",
     colorVariant: "green" as const,
     href: "/dashboard",
-  },
-  {
-    icon: FlaskConical,
-    title: "ผลแลป",
-    subtitle: "Laboratory",
-    colorVariant: "purple" as const,
-    href: "#",
-  },
-  {
-    icon: CalendarDays,
-    title: "ตารางออกตรวจ",
-    subtitle: "Doctor Schedule",
-    colorVariant: "orange" as const,
-    href: "#",
-  },
-  {
-    icon: Syringe,
-    title: "การรับวัคซีน",
-    subtitle: "Vaccine",
-    colorVariant: "pink" as const,
-    href: "#",
-  },
-  {
-    icon: Phone,
-    title: "ติดต่อโรงพยาบาล",
-    subtitle: "Contact",
-    colorVariant: "blue" as const,
-    href: "#",
-  },
-  {
-    icon: Calendar,
-    title: "ปฏิทินกิจกรรม",
-    subtitle: "Calendar",
-    colorVariant: "teal" as const,
-    href: "#",
-  },
-  {
-    icon: Settings,
-    title: "ตั้งค่าระบบ",
-    subtitle: "Settings",
-    colorVariant: "green" as const,
-    href: "#",
   },
 ];
 

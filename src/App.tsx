@@ -12,6 +12,10 @@ import History from "./pages/History";
 import Menu from "./pages/Menu";
 import NotFound from "./pages/NotFound";
 import PendingApproval from "./pages/PendingApproval";
+import Appointments from "./pages/Appointments";
+import DoctorMenu from "./pages/DoctorMenu";
+import PatientList from "./pages/doctor/PatientList";
+import { useProfile } from "@/hooks/useProfile";
 
 const queryClient = new QueryClient();
 
@@ -29,9 +33,7 @@ function AuthRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-import DoctorMenu from "./pages/DoctorMenu";
-import PatientList from "./pages/doctor/PatientList";
-import { useProfile } from "@/hooks/useProfile";
+
 
 function DoctorProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading: authLoading } = useAuth();
@@ -69,6 +71,8 @@ function AppRoutes() {
       <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
       <Route path="/profile/:patientId" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
       <Route path="/profile/edit" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
+      <Route path="/profile/edit/:patientId" element={<DoctorProtectedRoute><EditProfile /></DoctorProtectedRoute>} />
+      <Route path="/appointments" element={<ProtectedRoute><Appointments /></ProtectedRoute>} />
       <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
       <Route path="/history/:patientId" element={<ProtectedRoute><History /></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />

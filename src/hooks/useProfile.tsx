@@ -60,7 +60,7 @@ export function useProfile() {
         variant: 'destructive',
       });
     } else {
-      setProfile({ ...data, role: (data as any).role || 'user' } as Profile);
+      setProfile({ ...data, role: (data as Record<string, unknown>).role as Profile['role'] || 'user' } as Profile);
     }
     setLoading(false);
   };

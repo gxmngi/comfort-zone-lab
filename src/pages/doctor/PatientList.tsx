@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile, Profile } from '@/hooks/useProfile';
-import { Search, User, Phone, ArrowLeft } from 'lucide-react';
+import { Search, User, Phone, ArrowLeft, Edit } from 'lucide-react';
 
 export default function PatientList() {
   const { signOut, user } = useAuth();
@@ -17,7 +17,7 @@ export default function PatientList() {
   const [loading, setLoading] = useState(true);
   const [patients, setPatients] = useState<Profile[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [error, setError] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSignOut = async () => {
     await signOut();
@@ -46,13 +46,13 @@ export default function PatientList() {
 
       if (error) {
         console.error('Error fetching patients:', error);
-        setError(error);
+        setError(error.message);
       } else {
         setPatients(data as Profile[]);
       }
-    } catch (error) {
-      console.error('Error:', error);
-      setError(error);
+    } catch (err) {
+      console.error('Error:', err);
+      setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
       setLoading(false);
     }
@@ -165,6 +165,17 @@ export default function PatientList() {
                              }}
                            >
                              History
+                           </Button>
+                           <Button 
+                             variant="outline" 
+                             className="border-amber-200 hover:bg-amber-50 text-amber-700"
+                             size="sm"
+                             onClick={(e) => {
+                               e.stopPropagation();
+                               navigate(`/profile/edit/${patient.id}`);
+                             }}
+                           >
+                             <Edit className="h-3.5 w-3.5" />
                            </Button>
                         </div>
                     </CardContent>
