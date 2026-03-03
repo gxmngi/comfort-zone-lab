@@ -1,15 +1,30 @@
 import { cn } from '@/lib/utils';
 import { getComfortDetails } from '@/utils/mockData';
-import { Brain, Smile, Frown, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Brain, Smile, Frown, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 
 interface ComfortStatusProps {
   level: number;
+  probability?: number;         // 0–1, probability of uncomfortable
+  isPredicting?: boolean;       // true while API call is in progress
+  lastPredictedAt?: string | null; // ISO timestamp
   className?: string;
 }
 
-export function ComfortStatus({ level, className }: ComfortStatusProps) {
+export function ComfortStatus({ level, probability, isPredicting, lastPredictedAt, className }: ComfortStatusProps) {
   const details = getComfortDetails(level);
   const isHealthy = level === 2; // 2 = Comfortable
+
+  // Format probability as percentage
+  const probabilityPct = probability !== undefined ? (probability * 100).toFixed(1) : null;
+  // Risk text: probability of uncomfortable
+  const riskLabel = isHealthy
+    ? `ความเสี่ยงไม่สบาย ${probabilityPct ?? '—'}%`
+    : `ความน่าจะเป็นไม่สบาย ${probabilityPct ?? '—'}%`;
+
+  // Format last predicted time
+  const lastTimeStr = lastPredictedAt
+    ? new Date(lastPredictedAt).toLocaleTimeString('th-TH', { hour12: false })
+    : null;
   
   const statusConfig = {
     1: {
@@ -42,11 +57,18 @@ export function ComfortStatus({ level, className }: ComfortStatusProps) {
 
   return (
     <div className={cn("medical-card overflow-hidden transition-all duration-300 flex flex-col justify-between", className)}>
-      <div className="flex items-center gap-2 mb-2">
-        <div className={`p-1.5 rounded-lg ${statusConfig.bgColor}`}>
-          <Brain className={`h-4 w-4 ${statusConfig.color}`} />
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <div className={`p-1.5 rounded-lg ${statusConfig.bgColor}`}>
+            <Brain className={`h-4 w-4 ${statusConfig.color}`} />
+          </div>
+          <h3 className="font-display font-semibold text-base">ML Comfort Prediction</h3>
         </div>
-        <h3 className="font-display font-semibold text-base">ML Comfort Prediction</h3>
+
+        {/* Predicting spinner */}
+        {isPredicting && (
+          <Loader2 className="h-4 w-4 text-muted-foreground animate-spin" />
+        )}
       </div>
       
       {/* Main Status Display */}
@@ -71,6 +93,35 @@ export function ComfortStatus({ level, className }: ComfortStatusProps) {
             {details.description}
           </p>
         </div>
+
+        {/* ── Probability bar ────────────────────────────────── */}
+        {probabilityPct !== null && (
+          <div className="mt-3 w-full max-w-[200px] space-y-1">
+            <div className="flex justify-between text-[10px] text-muted-foreground font-medium">
+              <span>สบาย</span>
+              <span>{riskLabel}</span>
+              <span>ไม่สบาย</span>
+            </div>
+            <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+              <div
+                className={cn(
+                  "h-2 rounded-full transition-all duration-700 ease-out",
+                  (probability ?? 0) > 0.5
+                    ? "bg-gradient-to-r from-orange-400 to-red-500"
+                    : "bg-gradient-to-r from-emerald-400 to-emerald-500"
+                )}
+                style={{ width: `${Math.max(5, (probability ?? 0) * 100)}%` }}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Last prediction time */}
+        {lastTimeStr && (
+          <p className="mt-2 text-[10px] text-muted-foreground">
+            อัปเดตล่าสุด: {lastTimeStr}
+          </p>
+        )}
       </div>
 
       {/* Status Toggle Indicator */}
@@ -90,7 +141,7 @@ export function ComfortStatus({ level, className }: ComfortStatusProps) {
             !isHealthy ? "text-red-600 font-semibold" : "text-muted-foreground"
           )}>
             <Frown className={cn("w-3.5 h-3.5", !isHealthy && "fill-current opacity-20")} />
-            <span className="text-xs">Uncomfortable</span>
+            <span className="text-xs">ไม่สบาย</span>
           </div>
 
           {/* Comfortable Segment */}
@@ -99,7 +150,7 @@ export function ComfortStatus({ level, className }: ComfortStatusProps) {
             isHealthy ? "text-emerald-600 font-semibold" : "text-muted-foreground"
           )}>
             <Smile className={cn("w-3.5 h-3.5", isHealthy && "fill-current opacity-20")} />
-            <span className="text-xs">Comfortable</span>
+            <span className="text-xs">สบาย</span>
           </div>
         </div>
       </div>

@@ -9,7 +9,7 @@ interface RecommendationsCardProps {
 
 export function RecommendationsCard({ comfortLevel, hasDustAllergy = false, className }: RecommendationsCardProps) {
   const getRecommendations = () => {
-    if (comfortLevel <= 2) {
+    if (comfortLevel <= 1) {
       return {
         status: 'warning',
         icon: AlertTriangle,

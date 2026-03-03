@@ -1,141 +1,142 @@
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, ComposedChart } from 'recharts';
-import { EDADataPoint } from '@/utils/mockData';
+import {
+  AreaChart, Area, XAxis, YAxis, CartesianGrid,
+  Tooltip, ResponsiveContainer, ReferenceLine,
+} from 'recharts';
 import { Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface EDAChartProps {
-  data: any[];
+  data: { time: string; value: number }[];
   className?: string;
 }
 
 export function EDAChart({ data, className }: EDAChartProps) {
-  const latestTonic = data.length > 0 ? data[data.length - 1].tonic : 0;
-  const latestPhasic = data.length > 0 ? data[data.length - 1].phasic : 0;
+  const latest  = data.length > 0 ? data[data.length - 1].value : 0;
+  const values  = data.map(d => d.value);
+  const minVal  = values.length > 0 ? Math.min(...values) : 0;
+  const maxVal  = values.length > 0 ? Math.max(...values) : 0;
+  const avgVal  = values.length > 0 ? values.reduce((a, b) => a + b, 0) / values.length : 0;
+
+  // Pad Y-axis so the line isn't squished at top/bottom
+  const range   = maxVal - minVal || 0.001;
+  const yMin    = Math.max(0, minVal - range * 0.2);
+  const yMax    = maxVal + range * 0.2;
+
+  // Format small numbers nicely (5 sig. figures)
+  const fmt = (v: number) => {
+    if (v === 0) return '0';
+    if (Math.abs(v) < 0.001) return v.toExponential(2);
+    return v.toPrecision(4);
+  };
 
   return (
-    <div className={cn("medical-card overflow-hidden flex flex-col", className)}>
-      <div className="flex items-center justify-between mb-4">
+    <div className={cn('medical-card overflow-hidden flex flex-col', className)}>
+      {/* ── Header ── */}
+      <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <Zap className="h-5 w-5 text-accent" />
-          <h3 className="font-display font-semibold text-lg">EDA Signal Decomposition</h3>
+          <Zap className="h-5 w-5 text-yellow-400" />
+          <h3 className="font-display font-semibold text-lg">EDA Signal</h3>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-chart-tonic" />
-            <span className="text-xs text-muted-foreground">Tonic (SCL)</span>
+        {/* Live value badge */}
+        <div className="flex items-center gap-3 text-sm">
+          <div className="flex flex-col items-end">
+            <span className="text-xs text-muted-foreground">Current</span>
+            <span className="font-bold text-yellow-400 font-mono text-base">
+              {fmt(latest)} <span className="text-xs font-normal text-muted-foreground">μS</span>
+            </span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-chart-phasic" />
-            <span className="text-xs text-muted-foreground">Phasic (SCR)</span>
+          <div className="flex flex-col items-end">
+            <span className="text-xs text-muted-foreground">Avg</span>
+            <span className="font-mono text-base font-semibold text-muted-foreground">
+              {fmt(avgVal)} <span className="text-xs font-normal">μS</span>
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Current Values */}
-      <div className="grid grid-cols-2 gap-4 mb-4">
-        <div className="p-3 bg-muted/50 rounded-lg">
-          <div className="text-xs text-muted-foreground mb-1">Tonic Level (SCL)</div>
-          <div className="flex items-baseline gap-1">
-            <span className="text-2xl font-display font-bold text-chart-tonic">
-              {latestTonic.toFixed(3)}
-            </span>
-            <span className="text-xs text-muted-foreground">μS</span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">Baseline arousal</p>
-        </div>
-        <div className="p-3 bg-muted/50 rounded-lg">
-          <div className="text-xs text-muted-foreground mb-1">Phasic Activity (SCR)</div>
-          <div className="flex items-baseline gap-1">
-            <span className="text-2xl font-display font-bold text-chart-phasic">
-              {latestPhasic.toFixed(3)}
-            </span>
-            <span className="text-xs text-muted-foreground">μS</span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">Stimulus response</p>
-        </div>
+      {/* ── Mini stats row ── */}
+      <div className="flex gap-3 mb-3">
+        <span className="text-xs text-muted-foreground">
+          Min: <span className="font-mono text-foreground">{fmt(minVal)}</span>
+        </span>
+        <span className="text-xs text-muted-foreground">
+          Max: <span className="font-mono text-foreground">{fmt(maxVal)}</span>
+        </span>
+        <span className="text-xs text-muted-foreground">
+          Samples: <span className="font-mono text-foreground">{data.length}</span>
+        </span>
       </div>
 
-      {/* Chart */}
-      <div className="flex-1 min-h-0">
-        <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-            <XAxis 
-              dataKey="time" 
-              tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
-              tickLine={false}
-              axisLine={false}
-              interval="preserveStartEnd"
-            />
-            <YAxis 
-              yAxisId="tonic"
-              tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
-              tickLine={false}
-              axisLine={false}
-              width={40}
-              domain={['auto', 'auto']}
-            />
-            <YAxis 
-              yAxisId="phasic"
-              orientation="right"
-              tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
-              tickLine={false}
-              axisLine={false}
-              width={40}
-              domain={[0, 'auto']}
-            />
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: 'hsl(var(--card))', 
-                border: '1px solid hsl(var(--border))',
-                borderRadius: '8px',
-                fontSize: '12px'
-              }}
-              formatter={(value: number, name: string) => [
-                `${value.toFixed(3)} μS`,
-                name === 'tonic' ? 'Tonic (SCL)' : 'Phasic (SCR)'
-              ]}
-            />
-            <defs>
-              <linearGradient id="tonicStrokeGradient" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="85%" stopColor="hsl(var(--chart-tonic))" stopOpacity={1} />
-                <stop offset="100%" stopColor="hsl(var(--chart-tonic))" stopOpacity={0.3} />
-              </linearGradient>
-              <linearGradient id="tonicFillGradient" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="85%" stopColor="hsl(var(--chart-tonic))" stopOpacity={0.2} />
-                <stop offset="100%" stopColor="hsl(var(--chart-tonic))" stopOpacity={0.05} />
-              </linearGradient>
-              <linearGradient id="phasicGradient" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="85%" stopColor="hsl(var(--chart-phasic))" stopOpacity={1} />
-                <stop offset="100%" stopColor="hsl(var(--chart-phasic))" stopOpacity={0.3} />
-              </linearGradient>
-            </defs>
-            <Area
-              yAxisId="tonic"
-              type="monotone"
-              dataKey="tonic"
-              stroke="url(#tonicStrokeGradient)"
-              fill="url(#tonicFillGradient)"
-              strokeWidth={2}
-              name="tonic"
-              isAnimationActive={true}
-              animationDuration={800}
-              animationEasing="ease-in-out"
-            />
-            <Line
-              yAxisId="phasic"
-              type="monotone"
-              dataKey="phasic"
-              stroke="url(#phasicGradient)"
-              strokeWidth={2}
-              dot={false}
-              name="phasic"
-              isAnimationActive={true}
-              animationDuration={800}
-              animationEasing="ease-in-out"
-            />
-          </ComposedChart>
-        </ResponsiveContainer>
+      {/* ── Chart ── */}
+      <div className="flex-1 min-h-0" style={{ minHeight: 170 }}>
+        {data.length < 2 ? (
+          <div className="flex h-full items-center justify-center text-muted-foreground text-sm">
+            Waiting for data…
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={data} margin={{ top: 10, right: 12, left: 4, bottom: 5 }}>
+              <defs>
+                <linearGradient id="edaFill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%"   stopColor="#facc15" stopOpacity={0.5} />
+                  <stop offset="100%" stopColor="#facc15" stopOpacity={0.03} />
+                </linearGradient>
+              </defs>
+
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" strokeOpacity={0.5} />
+
+              <XAxis
+                dataKey="time"
+                tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+                tickLine={false}
+                axisLine={false}
+                interval="preserveStartEnd"
+              />
+
+              <YAxis
+                domain={[yMin, yMax]}
+                tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+                tickLine={false}
+                axisLine={false}
+                width={62}
+                tickFormatter={fmt}
+              />
+
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: 'hsl(var(--card))',
+                  border: '1px solid hsl(var(--border))',
+                  borderRadius: '8px',
+                  fontSize: '12px',
+                }}
+                formatter={(v: number) => [`${v.toFixed(5)} μS`, 'EDA']}
+                labelStyle={{ color: 'hsl(var(--muted-foreground))' }}
+              />
+
+              {/* Average reference line */}
+              {avgVal > 0 && (
+                <ReferenceLine
+                  y={avgVal}
+                  stroke="#facc15"
+                  strokeDasharray="5 3"
+                  strokeOpacity={0.5}
+                  label={{ value: 'avg', position: 'insideTopRight', fontSize: 10, fill: '#facc15' }}
+                />
+              )}
+
+              <Area
+                type="monotone"
+                dataKey="value"
+                stroke="#facc15"
+                strokeWidth={2.5}
+                fill="url(#edaFill)"
+                dot={false}
+                activeDot={{ r: 4, strokeWidth: 0, fill: '#facc15' }}
+                isAnimationActive={false}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        )}
       </div>
     </div>
   );

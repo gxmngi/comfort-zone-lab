@@ -22,8 +22,8 @@ const generateMockReadings = () => {
     const isSleepTime = time.getHours() >= 23 || time.getHours() < 6;
     
     // Base values vary by time of day
-    let baseHR = isSleepTime ? 55 : 75;
-    let baseTonic = isSleepTime ? 1.5 : 3.5;
+    const baseHR = isSleepTime ? 55 : 75;
+    const baseTonic = isSleepTime ? 1.5 : 3.5;
     
     // Add some random variation
     const variation = Math.random();
@@ -50,7 +50,7 @@ const mockReadings = generateMockReadings();
 export default function History() {
   const { user } = useAuth();
   const { patientId } = useParams<{ patientId: string }>();
-  const [patientProfile, setPatientProfile] = useState<any>(null);
+  const [patientProfile, setPatientProfile] = useState<{ first_name: string; last_name: string } | null>(null);
 
   // If patientId is present, we are viewing as a doctor
   const isDoctorView = !!patientId;

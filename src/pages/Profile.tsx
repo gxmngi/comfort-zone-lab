@@ -1,5 +1,5 @@
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import { useProfile } from '@/hooks/useProfile';
+import { useProfile, type Profile as ProfileType } from '@/hooks/useProfile';
 import { BMICard } from '@/components/profile/BMIDisplay';
 import { HealthSummaryCard } from '@/components/profile/HealthSummaryCard';
 import { Button } from '@/components/ui/button';
@@ -19,7 +19,7 @@ function calculateAge(dateOfBirth: string | null): number | null {
 export default function Profile() {
   const { profile: userProfile, loading: userLoading } = useProfile();
   const { patientId } = useParams<{ patientId: string }>();
-  const [patientProfile, setPatientProfile] = useState<any>(null);
+  const [patientProfile, setPatientProfile] = useState<ProfileType | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -31,7 +31,7 @@ export default function Profile() {
           .select('*')
           .eq('id', patientId)
           .single();
-        setPatientProfile(data);
+        if (data) setPatientProfile(data as ProfileType);
         setLoading(false);
       } else {
         // If no patientId, rely on userProfile from hook
@@ -61,6 +61,9 @@ export default function Profile() {
           </div>
           {!patientId && (
             <Button asChild><Link to="/profile/edit"><Edit className="h-4 w-4 mr-2" />Edit Profile</Link></Button>
+          )}
+          {patientId && userProfile?.role === 'doctor' && (
+            <Button asChild><Link to={`/profile/edit/${patientId}`}><Edit className="h-4 w-4 mr-2" />แก้ไขข้อมูลผู้ป่วย</Link></Button>
           )}
         </div>
 

@@ -3,15 +3,22 @@ import { HRVDataPoint } from '@/utils/mockData';
 import { Activity } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+interface HRVDataItem {
+  time: string;
+  lf?: number;
+  hf?: number;
+  lfHfRatio?: number;
+}
+
 interface HRVChartProps {
-  data: any[];
+  data: HRVDataItem[];
   className?: string;
 }
 
 export function HRVChart({ data, className }: HRVChartProps) {
   // Safe access for latest calculated ratio
   const latestRatio = data.length > 0 && 'lfHfRatio' in data[data.length - 1] 
-    ? (data[data.length - 1] as any).lfHfRatio 
+    ? data[data.length - 1].lfHfRatio ?? 0
     : 0;
 
   return (

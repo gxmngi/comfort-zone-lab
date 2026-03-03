@@ -41,43 +41,8 @@ export default function DoctorMenu() {
       subtitle: 'Appointments', 
       icon: CalendarCheck, 
       colorVariant: 'teal' as const, 
-      href: '#' 
+      href: '/appointments' 
     },
-    { 
-      title: 'สัญญาณชีพผู้ป่วย',
-      subtitle: 'Patient Vitals', 
-      icon: Activity, 
-      colorVariant: 'pink' as const, 
-      href: '#' 
-    },
-    { 
-      title: 'เวชระเบียน',
-      subtitle: 'Medical Records', 
-      icon: ClipboardList, 
-      colorVariant: 'orange' as const, 
-      href: '#' 
-    },
-    { 
-      title: 'การวินิจฉัย',
-      subtitle: 'Diagnosis', 
-      icon: Stethoscope, 
-      colorVariant: 'purple' as const,
-      href: '#' 
-    },
-    { 
-      title: 'ค้นหาผู้ป่วย',
-      subtitle: 'Find Patient', 
-      icon: Search, 
-      colorVariant: 'green' as const,
-      href: '#' 
-    },
-    { 
-      title: 'เพิ่มผู้ป่วยใหม่',
-      subtitle: 'Add Patient', 
-      icon: UserPlus, 
-      colorVariant: 'blue' as const,
-      href: '#' 
-    }
   ];
 
   return (
@@ -98,7 +63,7 @@ export default function DoctorMenu() {
           </div>
 
           {/* Menu Grid */}
-          <div className="mx-auto grid max-w-6xl gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="mx-auto grid max-w-4xl gap-4 sm:grid-cols-2">
             {doctorMenuItems.map((item, index) => (
               <MenuCard
                 key={index}

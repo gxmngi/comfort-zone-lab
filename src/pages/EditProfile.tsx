@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import { useProfile } from '@/hooks/useProfile';
+import { useProfile, Profile } from '@/hooks/useProfile';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,51 +11,154 @@ import { Switch } from '@/components/ui/switch';
 import { BMIDisplay } from '@/components/profile/BMIDisplay';
 import { User, Activity, Heart, ArrowLeft } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 export default function EditProfile() {
-  const { profile, loading, updateProfile } = useProfile();
+  const { profile: myProfile, loading: myLoading, updateProfile } = useProfile();
+  const { patientId } = useParams<{ patientId: string }>();
   const navigate = useNavigate();
-  const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({ first_name: '', last_name: '', phone: '', date_of_birth: '', gender: '', emergency_contact_name: '', emergency_contact_phone: '', weight_kg: '', height_cm: '', blood_type: '', allergies: '', medical_conditions: '', medications: '', dust_allergy: false });
+  const { toast } = useToast();
 
+  const isEditingPatient = !!patientId;
+
+  const [saving, setSaving] = useState(false);
+  const [patientLoading, setPatientLoading] = useState(false);
+  const [patientName, setPatientName] = useState('');
+  const [form, setForm] = useState({
+    first_name: '', last_name: '', phone: '', date_of_birth: '', gender: '',
+    emergency_contact_name: '', emergency_contact_phone: '',
+    weight_kg: '', height_cm: '', blood_type: '', allergies: '',
+    medical_conditions: '', medications: '', dust_allergy: false,
+  });
+
+  // ── Load patient profile (doctor editing) ──────────────────────────────
   useEffect(() => {
-    if (profile) {
+    if (!patientId) return;
+    const fetchPatientProfile = async () => {
+      setPatientLoading(true);
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', patientId)
+        .single();
+
+      if (error || !data) {
+        toast({ title: 'Error', description: 'ไม่พบข้อมูลผู้ป่วย', variant: 'destructive' });
+        navigate(-1);
+        return;
+      }
+
+      const p = data as Profile;
+      setPatientName(`${p.first_name || ''} ${p.last_name || ''}`.trim());
       setForm({
-        first_name: profile.first_name || '', last_name: profile.last_name || '', phone: profile.phone || '',
-        date_of_birth: profile.date_of_birth || '', gender: profile.gender || '',
-        emergency_contact_name: profile.emergency_contact_name || '', emergency_contact_phone: profile.emergency_contact_phone || '',
-        weight_kg: profile.weight_kg?.toString() || '', height_cm: profile.height_cm?.toString() || '',
-        blood_type: profile.blood_type || '', allergies: profile.allergies || '',
-        medical_conditions: profile.medical_conditions || '', medications: profile.medications || '',
-        dust_allergy: profile.dust_allergy || false
+        first_name: p.first_name || '', last_name: p.last_name || '',
+        phone: p.phone || '', date_of_birth: p.date_of_birth || '', gender: p.gender || '',
+        emergency_contact_name: p.emergency_contact_name || '',
+        emergency_contact_phone: p.emergency_contact_phone || '',
+        weight_kg: p.weight_kg?.toString() || '', height_cm: p.height_cm?.toString() || '',
+        blood_type: p.blood_type || '', allergies: p.allergies || '',
+        medical_conditions: p.medical_conditions || '', medications: p.medications || '',
+        dust_allergy: p.dust_allergy || false,
+      });
+      setPatientLoading(false);
+    };
+    fetchPatientProfile();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [patientId]);
+
+  // ── Load own profile (self editing) ────────────────────────────────────
+  useEffect(() => {
+    if (patientId) return; // skip if editing patient
+    if (myProfile) {
+      setForm({
+        first_name: myProfile.first_name || '', last_name: myProfile.last_name || '',
+        phone: myProfile.phone || '', date_of_birth: myProfile.date_of_birth || '',
+        gender: myProfile.gender || '',
+        emergency_contact_name: myProfile.emergency_contact_name || '',
+        emergency_contact_phone: myProfile.emergency_contact_phone || '',
+        weight_kg: myProfile.weight_kg?.toString() || '',
+        height_cm: myProfile.height_cm?.toString() || '',
+        blood_type: myProfile.blood_type || '', allergies: myProfile.allergies || '',
+        medical_conditions: myProfile.medical_conditions || '',
+        medications: myProfile.medications || '',
+        dust_allergy: myProfile.dust_allergy || false,
       });
     }
-  }, [profile]);
+  }, [myProfile, patientId]);
 
+  // ── Save handler ───────────────────────────────────────────────────────
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    await updateProfile({
-      ...form,
+
+    const updates = {
+      first_name: form.first_name || null,
+      last_name: form.last_name || null,
+      phone: form.phone || null,
+      date_of_birth: form.date_of_birth || null,
+      gender: form.gender || null,
+      emergency_contact_name: form.emergency_contact_name || null,
+      emergency_contact_phone: form.emergency_contact_phone || null,
       weight_kg: form.weight_kg ? parseFloat(form.weight_kg) : null,
       height_cm: form.height_cm ? parseFloat(form.height_cm) : null,
+      blood_type: form.blood_type || null,
+      allergies: form.allergies || null,
+      medical_conditions: form.medical_conditions || null,
+      medications: form.medications || null,
       dust_allergy: form.dust_allergy,
-    });
+    };
+
+    if (isEditingPatient) {
+      // Doctor updating patient profile
+      const { error } = await supabase
+        .from('profiles')
+        .update(updates)
+        .eq('id', patientId);
+
+      if (error) {
+        toast({ title: 'Error', description: 'บันทึกไม่สำเร็จ: ' + error.message, variant: 'destructive' });
+      } else {
+        toast({ title: 'สำเร็จ', description: `อัปเดตข้อมูลผู้ป่วย ${patientName} เรียบร้อย` });
+        navigate(`/profile/${patientId}`);
+      }
+    } else {
+      // User updating own profile
+      await updateProfile(updates);
+      navigate('/profile');
+    }
+
     setSaving(false);
-    navigate('/profile');
+  };
+
+  // ── Back navigation ────────────────────────────────────────────────────
+  const handleBack = () => {
+    if (isEditingPatient) {
+      navigate(`/profile/${patientId}`);
+    } else {
+      navigate('/profile');
+    }
   };
 
   const weightNum = form.weight_kg ? parseFloat(form.weight_kg) : null;
   const heightNum = form.height_cm ? parseFloat(form.height_cm) : null;
 
+  const loading = isEditingPatient ? patientLoading : myLoading;
   if (loading) return <DashboardLayout><Skeleton className="h-96 w-full" /></DashboardLayout>;
 
   return (
     <DashboardLayout>
       <div className="max-w-3xl mx-auto space-y-6">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/profile')}><ArrowLeft className="h-5 w-5" /></Button>
-          <div><h1 className="font-display text-2xl font-bold">Edit Profile</h1><p className="text-muted-foreground">Update your information</p></div>
+          <Button variant="ghost" size="icon" onClick={handleBack}><ArrowLeft className="h-5 w-5" /></Button>
+          <div>
+            <h1 className="font-display text-2xl font-bold">
+              {isEditingPatient ? `แก้ไขข้อมูล: ${patientName}` : 'Edit Profile'}
+            </h1>
+            <p className="text-muted-foreground">
+              {isEditingPatient ? 'แก้ไขข้อมูลผู้ป่วยโดยแพทย์' : 'Update your information'}
+            </p>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -101,7 +204,10 @@ export default function EditProfile() {
             </div>
           </div>
 
-          <div className="flex gap-4"><Button type="button" variant="outline" onClick={() => navigate('/profile')}>Cancel</Button><Button type="submit" disabled={saving}>{saving ? 'Saving...' : 'Save Changes'}</Button></div>
+          <div className="flex gap-4">
+            <Button type="button" variant="outline" onClick={handleBack}>Cancel</Button>
+            <Button type="submit" disabled={saving}>{saving ? 'Saving...' : 'Save Changes'}</Button>
+          </div>
         </form>
       </div>
     </DashboardLayout>
