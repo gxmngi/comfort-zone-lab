@@ -14,13 +14,6 @@ export function ComfortStatus({ level, probability, isPredicting, lastPredictedA
   const details = getComfortDetails(level);
   const isHealthy = level === 2; // 2 = Comfortable
 
-  // Format probability as percentage
-  const probabilityPct = probability !== undefined ? (probability * 100).toFixed(1) : null;
-  // Risk text: probability of uncomfortable
-  const riskLabel = isHealthy
-    ? `ความเสี่ยงไม่สบาย ${probabilityPct ?? '—'}%`
-    : `ความน่าจะเป็นไม่สบาย ${probabilityPct ?? '—'}%`;
-
   // Format last predicted time
   const lastTimeStr = lastPredictedAt
     ? new Date(lastPredictedAt).toLocaleTimeString('th-TH', { hour12: false })
@@ -94,27 +87,7 @@ export function ComfortStatus({ level, probability, isPredicting, lastPredictedA
           </p>
         </div>
 
-        {/* ── Probability bar ────────────────────────────────── */}
-        {probabilityPct !== null && (
-          <div className="mt-3 w-full max-w-[200px] space-y-1">
-            <div className="flex justify-between text-[10px] text-muted-foreground font-medium">
-              <span>สบาย</span>
-              <span>{riskLabel}</span>
-              <span>ไม่สบาย</span>
-            </div>
-            <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
-              <div
-                className={cn(
-                  "h-2 rounded-full transition-all duration-700 ease-out",
-                  (probability ?? 0) > 0.5
-                    ? "bg-gradient-to-r from-orange-400 to-red-500"
-                    : "bg-gradient-to-r from-emerald-400 to-emerald-500"
-                )}
-                style={{ width: `${Math.max(5, (probability ?? 0) * 100)}%` }}
-              />
-            </div>
-          </div>
-        )}
+        {/* Probability bar removed – show only สบาย/ไม่สบาย result */}
 
         {/* Last prediction time */}
         {lastTimeStr && (

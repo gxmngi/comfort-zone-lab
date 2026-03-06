@@ -131,7 +131,7 @@ export default function History() {
                   <TableCell>{format(new Date(reading.recorded_at), 'MMM d, yyyy HH:mm')}</TableCell>
                   <TableCell>
                     <Badge className={`${getComfortBadgeClass(reading.comfort_level)} text-white`}>
-                      {reading.comfort_level} - {getComfortDetails(reading.comfort_level).label}
+                      {getComfortDetails(reading.comfort_level).label}
                     </Badge>
                   </TableCell>
                   

@@ -37,21 +37,8 @@ export function EDAChart({ data, className }: EDAChartProps) {
           <Zap className="h-5 w-5 text-yellow-400" />
           <h3 className="font-display font-semibold text-lg">EDA Signal</h3>
         </div>
-        {/* Live value badge */}
-        <div className="flex items-center gap-3 text-sm">
-          <div className="flex flex-col items-end">
-            <span className="text-xs text-muted-foreground">Current</span>
-            <span className="font-bold text-yellow-400 font-mono text-base">
-              {fmt(latest)} <span className="text-xs font-normal text-muted-foreground">μS</span>
-            </span>
-          </div>
-          <div className="flex flex-col items-end">
-            <span className="text-xs text-muted-foreground">Avg</span>
-            <span className="font-mono text-base font-semibold text-muted-foreground">
-              {fmt(avgVal)} <span className="text-xs font-normal">μS</span>
-            </span>
-          </div>
-        </div>
+
+
       </div>
 
       {/* ── Mini stats row ── */}
