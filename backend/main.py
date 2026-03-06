@@ -55,7 +55,11 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, restrict to your frontend URL
+    allow_origins=[
+        "http://localhost:5173",        # local dev
+        "http://localhost:3000",        # local dev alt
+        "https://comfort-zone-lab.vercel.app",  # production frontend
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
