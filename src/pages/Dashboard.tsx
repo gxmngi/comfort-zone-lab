@@ -60,7 +60,8 @@ export default function Dashboard() {
   } = useComfortPrediction(latest?.EDA, latest?.PPG, userBmi ?? undefined);
 
   // Map prediction to comfort level: 0 (สบาย) → 2, 1 (ไม่สบาย) → 1
-  const comfortLevel = prediction ? (prediction.prediction === 0 ? 2 : 1) : 2;
+  // 0 = no prediction yet, 1 = uncomfortable, 2 = comfortable
+  const comfortLevel = prediction ? (prediction.prediction === 0 ? 2 : 1) : 0;
 
   // ── Live clock ───────────────────────────────────────────────────────────
   useEffect(() => {
