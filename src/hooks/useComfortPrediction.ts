@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
 // ─── Configuration ─────────────────────────────────────────────────────────────
-const BACKEND_URL = 'http://localhost:8000';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
 // 60s window is the minimum recommended for reliable EDA tonic decomposition
 // and HRV MedianNN estimation (NeuroKit2 docs, Task Force 1996)
 const BUFFER_SIZE = 60;        // Collect 60 seconds of data before predicting

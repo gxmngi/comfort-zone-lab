@@ -35,7 +35,6 @@ export default function PatientList() {
   const fetchPatients = async () => {
     try {
       setLoading(true);
-      setLoading(true);
       const { data, error } = await supabase
         .from('profiles')
         .select('*')

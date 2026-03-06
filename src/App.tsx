@@ -74,7 +74,7 @@ function AppRoutes() {
       <Route path="/profile/edit/:patientId" element={<DoctorProtectedRoute><EditProfile /></DoctorProtectedRoute>} />
       <Route path="/appointments" element={<ProtectedRoute><Appointments /></ProtectedRoute>} />
       <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
-      <Route path="/history/:patientId" element={<ProtectedRoute><History /></ProtectedRoute>} />
+      <Route path="/history/:patientId" element={<DoctorProtectedRoute><History /></DoctorProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
