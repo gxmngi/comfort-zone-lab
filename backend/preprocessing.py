@@ -46,9 +46,14 @@ def compute_eda_tonic_std(eda_values: List[float], sampling_rate: int = 1) -> Li
     """
     Compute z-score normalized EDA Tonic (EDA_Tonic_STD) for each data point.
     
-    This matches the EDA_Tonic_STD column in the training data.
+    Removes the first 2 minutes of the signal to remove the baseline.
     """
     tonic, _ = decompose_eda(eda_values, sampling_rate)
+
+    # Remove the first 2 minutes (120 seconds) of the tonic signal
+    discard_samples = 120 * sampling_rate
+    if len(tonic) > discard_samples:
+        tonic = tonic[discard_samples:]
 
     mean = np.mean(tonic)
     std = np.std(tonic)

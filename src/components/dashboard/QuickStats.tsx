@@ -7,6 +7,7 @@ interface QuickStatsProps {
   skinTemp: number;
   className?: string;
   simpleMode?: boolean;
+  isConnected?: boolean;
 }
 
 function getBatteryIcon(pct: number) {
@@ -22,10 +23,17 @@ function getBatteryColor(pct: number) {
   return 'text-red-500';
 }
 
-export function QuickStats({ heartRate, batteryPercent, skinTemp, className, simpleMode = false }: QuickStatsProps) {
-  const hrDisplay = heartRate > 0 ? `${Math.round(heartRate)}` : '--';
-  const stDisplay = skinTemp > 0 ? skinTemp.toFixed(1) : '--.-';
-  const batDisplay = batteryPercent > 0 ? `${Math.round(batteryPercent)}` : '--';
+export function QuickStats({ 
+  heartRate, 
+  batteryPercent, 
+  skinTemp, 
+  className, 
+  simpleMode = false,
+  isConnected = true 
+}: QuickStatsProps) {
+  const hrDisplay = isConnected && heartRate > 0 ? `${Math.round(heartRate)}` : '--';
+  const stDisplay = isConnected && skinTemp > 0 ? skinTemp.toFixed(1) : '--.-';
+  const batDisplay = isConnected && batteryPercent > 0 ? `${Math.round(batteryPercent)}` : '--';
 
   return (
     <div className={cn('grid gap-4 grid-cols-1 sm:grid-cols-3', className)}>
@@ -46,49 +54,48 @@ export function QuickStats({ heartRate, batteryPercent, skinTemp, className, sim
       </div>
 
       {/* Skin Temperature */}
-      {!simpleMode && (
-        <div className="medical-card">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-cyan-100 dark:bg-cyan-950/30">
-              <Thermometer className="h-5 w-5 text-cyan-500" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Skin Temp</p>
-              <div className="flex items-baseline gap-1">
-                <span className="text-3xl font-bold font-display">{stDisplay}</span>
-                <span className="text-sm text-muted-foreground">°C</span>
-              </div>
+      <div className="medical-card">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-cyan-100 dark:bg-cyan-950/30">
+            <Thermometer className="h-5 w-5 text-cyan-500" />
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground">Skin Temp</p>
+            <div className="flex items-baseline gap-1">
+              <span className="text-3xl font-bold font-display">{stDisplay}</span>
+              <span className="text-sm text-muted-foreground">°C</span>
             </div>
           </div>
         </div>
-      )}
+      </div>
 
       {/* Battery */}
-      {!simpleMode && (
-        <div className="medical-card">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-950/30">
-              <Battery className={cn('h-5 w-5', getBatteryColor(batteryPercent))} />
+      <div className="medical-card">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-950/30">
+            <Battery className={cn('h-5 w-5', getBatteryColor(batteryPercent))} />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm text-muted-foreground">Battery</p>
+            <div className="flex items-baseline gap-1">
+              <span className={cn('text-3xl font-bold font-display', getBatteryColor(batteryPercent))}>
+                {batDisplay}
+              </span>
+              <span className="text-sm text-muted-foreground">%</span>
             </div>
-            <div className="flex-1">
-              <p className="text-sm text-muted-foreground">Battery</p>
-              <div className="flex items-baseline gap-1">
-                <span className={cn('text-3xl font-bold font-display', getBatteryColor(batteryPercent))}>
-                  {batDisplay}
-                </span>
-                <span className="text-sm text-muted-foreground">%</span>
-              </div>
-              {/* Progress bar */}
-              <div className="h-1.5 rounded-full bg-muted mt-1.5 overflow-hidden">
-                <div
-                  className={cn('h-full rounded-full transition-all duration-700', getBatteryColor(batteryPercent).replace('text-', 'bg-'))}
-                  style={{ width: `${Math.min(100, batteryPercent)}%` }}
-                />
-              </div>
+            {/* Progress bar */}
+            <div className="h-1.5 rounded-full bg-muted mt-1.5 overflow-hidden">
+              <div
+                className={cn(
+                  'h-full rounded-full transition-all duration-700', 
+                  isConnected ? getBatteryColor(batteryPercent).replace('text-', 'bg-') : 'bg-transparent'
+                )}
+                style={{ width: `${isConnected ? Math.min(100, batteryPercent) : 0}%` }}
+              />
             </div>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

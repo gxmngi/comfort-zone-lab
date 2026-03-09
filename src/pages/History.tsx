@@ -82,7 +82,12 @@ export default function History() {
   const { readings: dbReadings, loading } = useComfortReadings(patientId, isDoctorView ? 30 : 30);
 
   // Use mock data if no database readings exist
-  const readings = dbReadings.length > 0 ? dbReadings : mockReadings;
+  const rawReadings = dbReadings.length > 0 ? dbReadings : mockReadings;
+  
+  // Sort by most recent first
+  const readings = [...rawReadings].sort(
+    (a, b) => new Date(b.recorded_at).getTime() - new Date(a.recorded_at).getTime()
+  );
 
   const getComfortBadgeClass = (level: number) => {
     const classes: Record<number, string> = { 1: 'bg-comfort-1', 2: 'bg-comfort-2' };

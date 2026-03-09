@@ -92,6 +92,37 @@ export default function EditProfile() {
     e.preventDefault();
     setSaving(true);
 
+    // ── Validation ─────────────────────────────────────────────────────────
+    if (form.date_of_birth) {
+      const birthDate = new Date(form.date_of_birth);
+      const today = new Date();
+      if (birthDate > today) {
+        toast({ title: 'ข้อมูลไม่ถูกต้อง', description: 'วันเกิดไม่สามารถเป็นวันที่ในอนาคตได้', variant: 'destructive' });
+        setSaving(false);
+        return;
+      }
+      const age = today.getFullYear() - birthDate.getFullYear();
+      if (age > 120 || age < 1) {
+        toast({ title: 'ข้อมูลไม่ถูกต้อง', description: 'โปรดกรอกวันเกิดให้ถูกต้อง (อายุต้องไม่ต่ำกว่า 1 ปี และไม่เกิน 120 ปี)', variant: 'destructive' });
+        setSaving(false);
+        return;
+      }
+    }
+
+    const phoneRegex = /^0\d{8,9}$/;
+
+    if (form.phone && !phoneRegex.test(form.phone)) {
+      toast({ title: 'ข้อมูลไม่ถูกต้อง', description: 'โปรดกรอกเบอร์โทรศัพท์ให้ถูกต้อง (ขึ้นต้นด้วย 0 และมี 9-10 หลัก โดยไม่มีขีด)', variant: 'destructive' });
+      setSaving(false);
+      return;
+    }
+
+    if (form.emergency_contact_phone && !phoneRegex.test(form.emergency_contact_phone)) {
+      toast({ title: 'ข้อมูลไม่ถูกต้อง', description: 'โปรดกรอกเบอร์โทรติดต่อฉุกเฉินให้ถูกต้อง (ขึ้นต้นด้วย 0 และมี 9-10 หลัก โดยไม่มีขีด)', variant: 'destructive' });
+      setSaving(false);
+      return;
+    }
+
     const updates = {
       first_name: form.first_name || null,
       last_name: form.last_name || null,
@@ -171,8 +202,21 @@ export default function EditProfile() {
               <div><Label>Gender</Label><Select value={form.gender} onValueChange={(v) => setForm({...form, gender: v})}><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger><SelectContent><SelectItem value="male">Male</SelectItem><SelectItem value="female">Female</SelectItem><SelectItem value="other">Other</SelectItem></SelectContent></Select></div>
               <div><Label>Date of Birth</Label><Input type="date" value={form.date_of_birth} onChange={(e) => setForm({...form, date_of_birth: e.target.value})} /></div>
               <div><Label>Phone</Label><Input value={form.phone} onChange={(e) => setForm({...form, phone: e.target.value})} /></div>
-              <div><Label>Emergency Contact Name</Label><Input value={form.emergency_contact_name} onChange={(e) => setForm({...form, emergency_contact_name: e.target.value})} /></div>
-              <div><Label>Emergency Contact Phone</Label><Input value={form.emergency_contact_phone} onChange={(e) => setForm({...form, emergency_contact_phone: e.target.value})} /></div>
+              <div className="sm:col-span-2 grid sm:grid-cols-2 gap-4 bg-muted/20 p-4 rounded-xl border">
+                <div className="sm:col-span-2">
+                  <h4 className="font-medium text-sm text-muted-foreground flex items-center gap-2">
+                    Emergency Contact
+                  </h4>
+                </div>
+                <div>
+                  <Label>Name</Label>
+                  <Input value={form.emergency_contact_name} onChange={(e) => setForm({...form, emergency_contact_name: e.target.value})} placeholder="e.g. John Doe" />
+                </div>
+                <div>
+                  <Label>Phone</Label>
+                  <Input value={form.emergency_contact_phone} onChange={(e) => setForm({...form, emergency_contact_phone: e.target.value})} placeholder="e.g. 0812345678" />
+                </div>
+              </div>
             </div>
           </div>
 

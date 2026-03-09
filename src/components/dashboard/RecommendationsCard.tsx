@@ -1,4 +1,4 @@
-import { Leaf, AlertTriangle, Wind, Sparkles } from 'lucide-react';
+import { Leaf, AlertTriangle, Wind, Sparkles, Brain, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface RecommendationsCardProps {
@@ -9,7 +9,19 @@ interface RecommendationsCardProps {
 
 export function RecommendationsCard({ comfortLevel, hasDustAllergy = false, className }: RecommendationsCardProps) {
   const getRecommendations = () => {
-    if (comfortLevel <= 1) {
+    if (comfortLevel === 0) {
+      return {
+        status: 'waiting',
+        icon: Brain,
+        title: 'Waiting for Prediction',
+        recommendations: [
+          'กรุณารอระบบทำนายระดับความสบายสักครู่',
+          'คำแนะนำที่เหมาะสมกับคุณจะปรากฏขึ้นเมื่อมีผลการประเมินแล้ว'
+        ]
+      };
+    }
+
+    if (comfortLevel === 1) {
       return {
         status: 'warning',
         icon: AlertTriangle,
@@ -55,14 +67,20 @@ export function RecommendationsCard({ comfortLevel, hasDustAllergy = false, clas
       </div>
       
       <div className={`p-4 rounded-lg border ${
-        status === 'warning'
-          ? 'bg-medical-alert-warning/5 border-medical-alert-warning/20'
-          : 'bg-medical-success/5 border-medical-success/20'
+        status === 'waiting'
+          ? 'bg-muted/30 border-muted text-muted-foreground'
+          : status === 'warning'
+            ? 'bg-medical-alert-warning/5 border-medical-alert-warning/20'
+            : 'bg-medical-success/5 border-medical-success/20'
       }`}>
         <h4 className={`font-medium mb-3 flex items-center gap-2 ${
-          status === 'warning' ? 'text-medical-alert-warning' : 'text-medical-success'
+          status === 'waiting' 
+            ? 'text-muted-foreground'
+            : status === 'warning' ? 'text-medical-alert-warning' : 'text-medical-success'
         }`}>
-          {status === 'warning' ? <Wind className="h-4 w-4" /> : <Leaf className="h-4 w-4" />}
+          {status === 'waiting' && <Loader2 className="h-4 w-4 animate-spin" />}
+          {status === 'warning' && <Wind className="h-4 w-4" />}
+          {status === 'optimal' && <Leaf className="h-4 w-4" />}
           {title}
         </h4>
         <ul className="space-y-2">

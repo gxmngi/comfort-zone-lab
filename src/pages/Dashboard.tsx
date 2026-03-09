@@ -9,7 +9,8 @@ import { useProfile, calculateBMI } from '@/hooks/useProfile';
 import { useFirebaseEmotibit } from '@/hooks/useFirebaseEmotibit';
 import { useComfortPrediction } from '@/hooks/useComfortPrediction';
 import { useComfortReadings } from '@/hooks/useComfortReadings';
-import { Clock, Brain, Wifi, WifiOff, Loader2, AlertTriangle } from 'lucide-react';
+import { useEvaluationLock } from '@/hooks/useEvaluationLock';
+import { Clock, Brain, Wifi, WifiOff, Loader2, AlertTriangle, Lock, Play, Square } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -49,6 +50,16 @@ export default function Dashboard() {
 
   // ── Calculate BMI from profile ─────────────────────────────────────────
   const userBmi = calculateBMI(profile?.weight_kg ?? null, profile?.height_cm ?? null);
+  // ── Evaluation Lock ────────────────────────────────────────────────────────
+  const currentProfileId = profile?.id ?? 'unknown';
+  const currentProfileName = patientProfile 
+    ? `${patientProfile.first_name} ${patientProfile.last_name}` 
+    : profile?.first_name 
+      ? `${profile.first_name} ${profile.last_name}` 
+      : 'Unknown User';
+      
+  const { isLockedByOther, activeName, amILocked, acquireLock, releaseLock } = useEvaluationLock(currentProfileId, currentProfileName);
+
   const {
     prediction,
     isLoading: isPredicting,
@@ -57,7 +68,10 @@ export default function Dashboard() {
     error: predictionError,
     lastPredictedAt,
     backendOnline,
-  } = useComfortPrediction(latest?.EDA, latest?.PPG, userBmi ?? undefined);
+  } = useComfortPrediction(latest?.EDA, latest?.PPG, userBmi ?? undefined, amILocked);
+
+  // We only start collecting data to the predictors if we are locked by ourselves
+  const shouldPredict = amILocked;
 
   // Map prediction to comfort level: 0 (สบาย) → 2, 1 (ไม่สบาย) → 1
   // 0 = no prediction yet, 1 = uncomfortable, 2 = comfortable
@@ -161,6 +175,7 @@ export default function Dashboard() {
           batteryPercent={battery}
           skinTemp={skinTemp}
           simpleMode={isSimpleView}
+          isConnected={isConnected}
         />
 
         {/* ── BMI missing warning ──────────────────────────────────── */}
@@ -182,8 +197,43 @@ export default function Dashboard() {
           </div>
         )}
 
+        {/* ── Quit early if locked by other ──────────────────────────────── */}
+        {isLockedByOther && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6 flex flex-col items-center justify-center gap-3 text-center mb-6">
+            <Lock className="h-10 w-10 text-red-500 mb-2" />
+            <div>
+              <p className="text-lg font-semibold text-red-800">กำลังประเมินข้อมูลซ้อนทับ</p>
+              <p className="text-red-600 mt-1">
+                ขณะนี้มีผู้ใช้งานอื่น ({activeName}) กำลังประเมินระดับความสบาย<br/>
+                กรุณารอจนกว่าการประเมินของโปรไฟล์นั้นจะเสร็จสิ้น
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* ── Lock Controls ──────────────────────────────────────────────── */}
+        {!isLockedByOther && userBmi && isConnected && backendOnline && (
+           <div className="flex justify-end my-4">
+              {!amILocked ? (
+                 <button
+                   onClick={acquireLock}
+                   className="flex items-center gap-2 px-6 py-3 font-semibold text-white bg-primary rounded-xl shadow hover:bg-primary/90 transition-all hover:scale-[1.02]"
+                 >
+                   <Play className="w-5 h-5" /> เริ่มการประเมินวิเคราะห์ (Start Evaluation)
+                 </button>
+              ) : (
+                 <button
+                   onClick={releaseLock}
+                   className="flex items-center gap-2 px-6 py-3 font-semibold text-red-600 bg-red-100 hover:bg-red-200 border border-red-200 rounded-xl transition-all"
+                 >
+                   <Square className="w-5 h-5" fill="currentColor" /> จบการประเมินวิเคราะห์ (Stop Evaluation)
+                 </button>
+              )}
+           </div>
+        )}
+
         {/* ── Data collection progress ─────────────────────────────── */}
-        {backendOnline && !prediction && isConnected && (
+        {backendOnline && !prediction && isConnected && !isLockedByOther && amILocked && (
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center gap-3">
             <Loader2 className="h-5 w-5 text-blue-600 animate-spin" />
             <div>
@@ -202,14 +252,14 @@ export default function Dashboard() {
         )}
 
         {/* ── Prediction error ─────────────────────────────────────── */}
-        {predictionError && (
+        {predictionError && amILocked && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">
             ⚠️ Prediction error: {predictionError}
           </div>
         )}
 
         {/* ── Main grid ────────────────────────────────────────────── */}
-        <div className={`grid gap-6 items-stretch ${isSimpleView ? 'grid-cols-1' : 'lg:grid-cols-[2fr_3fr]'}`}>
+        <div className={`grid gap-6 items-stretch ${isLockedByOther || !amILocked ? 'opacity-50 pointer-events-none filter grayscale' : ''} ${isSimpleView ? 'grid-cols-1' : 'lg:grid-cols-[2fr_3fr]'}`}>
 
           {/* Left: Comfort + Recommendations */}
           <div className={isSimpleView ? 'grid gap-6 md:grid-cols-2' : 'flex flex-col gap-6'}>
@@ -229,9 +279,17 @@ export default function Dashboard() {
 
           {/* Right: EDA + PPG (hidden in Simple View) */}
           {!isSimpleView && (
-            <div className="flex flex-col gap-6">
-              <EDAChart data={edaHistory} className="flex-1 min-h-[240px]" />
-              <PPGChart data={ppgHistory} className="flex-1 min-h-[200px]" />
+            <div className="relative flex flex-col gap-6">
+              {!isConnected && (
+                <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/50 backdrop-blur-sm rounded-xl">
+                  <div className="bg-card border shadow-lg rounded-full px-6 py-3 flex items-center gap-3">
+                     <WifiOff className="h-5 w-5 text-muted-foreground" />
+                     <span className="font-medium text-muted-foreground">กำลังรอการเชื่อมต่อข้อมูล... (Waiting for connection)</span>
+                  </div>
+                </div>
+              )}
+              <EDAChart data={edaHistory} className={`flex-1 min-h-[240px] transition-all duration-300 ${!isConnected ? 'opacity-40 blur-[2px]' : ''}`} />
+              <PPGChart data={ppgHistory} className={`flex-1 min-h-[200px] transition-all duration-300 ${!isConnected ? 'opacity-40 blur-[2px]' : ''}`} />
             </div>
           )}
         </div>

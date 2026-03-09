@@ -42,17 +42,19 @@ export function EDAChart({ data, className }: EDAChartProps) {
       </div>
 
       {/* ── Mini stats row ── */}
-      <div className="flex gap-3 mb-3">
-        <span className="text-xs text-muted-foreground">
-          Min: <span className="font-mono text-foreground">{fmt(minVal)}</span>
-        </span>
-        <span className="text-xs text-muted-foreground">
-          Max: <span className="font-mono text-foreground">{fmt(maxVal)}</span>
-        </span>
-        <span className="text-xs text-muted-foreground">
-          Samples: <span className="font-mono text-foreground">{data.length}</span>
-        </span>
-      </div>
+      {data.length > 0 && (
+        <div className="flex gap-3 mb-3">
+          <span className="text-xs text-muted-foreground">
+            Min: <span className="font-mono text-foreground">{fmt(minVal)}</span>
+          </span>
+          <span className="text-xs text-muted-foreground">
+            Max: <span className="font-mono text-foreground">{fmt(maxVal)}</span>
+          </span>
+          <span className="text-xs text-muted-foreground">
+            Samples: <span className="font-mono text-foreground">{data.length}</span>
+          </span>
+        </div>
+      )}
 
       {/* ── Chart ── */}
       <div className="flex-1 min-h-0" style={{ minHeight: 170 }}>

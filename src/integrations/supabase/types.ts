@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      appointments: {
+        Row: {
+          created_at: string
+          date: string
+          department: string
+          doctor_id: string
+          id: string
+          location: string
+          note: string | null
+          patient_id: string
+          status: string
+          time: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          department: string
+          doctor_id: string
+          id?: string
+          location: string
+          note?: string | null
+          patient_id: string
+          status?: string
+          time: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          department?: string
+          doctor_id?: string
+          id?: string
+          location?: string
+          note?: string | null
+          patient_id?: string
+          status?: string
+          time?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_doctor_id_fkey"
+            columns: ["doctor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       comfort_readings: {
         Row: {
           comfort_level: number

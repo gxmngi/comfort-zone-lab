@@ -79,7 +79,13 @@ export default function Profile() {
                 <div><p className="text-xs text-muted-foreground">Date of Birth</p><p className="font-medium">{profile?.date_of_birth ? format(new Date(profile.date_of_birth), 'MMM d, yyyy') : '—'}</p></div>
                 <div><p className="text-xs text-muted-foreground">Age</p><p className="font-medium">{age !== null ? `${age} years` : '—'}</p></div>
                 <div><p className="text-xs text-muted-foreground">Gender</p><p className="font-medium">{profile?.gender || '—'}</p></div>
-                <div><p className="text-xs text-muted-foreground">Emergency Contact</p><p className="font-medium">{profile?.emergency_contact_name || '—'}</p></div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Emergency Contact</p>
+                  <p className="font-medium">
+                    {profile?.emergency_contact_name || '—'} 
+                    {profile?.emergency_contact_phone ? ` (${profile.emergency_contact_phone})` : ''}
+                  </p>
+                </div>
               </div>
             </div>
 
