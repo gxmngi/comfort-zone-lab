@@ -18,7 +18,7 @@ export default function Dashboard() {
   const { profile } = useProfile();
   const { patientId } = useParams<{ patientId: string }>();
   const navigate = useNavigate();
-  const [patientProfile, setPatientProfile] = useState<{ first_name: string; last_name: string } | null>(null);
+  const [patientProfile, setPatientProfile] = useState<{ first_name?: string | null; last_name?: string | null; weight_kg?: number | null; height_cm?: number | null } | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
 
   const isSimpleView = profile?.role === 'user' && !patientId;
@@ -48,8 +48,10 @@ export default function Dashboard() {
   // ── Firebase real-time data ──────────────────────────────────────────────
   const { isConnected, latest, edaHistory, ppgHistory } = useFirebaseEmotibit();
 
-  // ── Calculate BMI from profile ─────────────────────────────────────────
-  const userBmi = calculateBMI(profile?.weight_kg ?? null, profile?.height_cm ?? null);
+  // ── Calculate BMI from either patient profile or own profile ───────────
+  const weight = patientId ? patientProfile?.weight_kg : profile?.weight_kg;
+  const height = patientId ? patientProfile?.height_cm : profile?.height_cm;
+  const userBmi = calculateBMI(weight ?? null, height ?? null);
   // ── Evaluation Lock ────────────────────────────────────────────────────────
   const currentProfileId = profile?.id ?? 'unknown';
   const currentProfileName = patientProfile 
@@ -189,7 +191,7 @@ export default function Dashboard() {
               </p>
             </div>
             <button
-              onClick={() => navigate('/profile/edit')}
+              onClick={() => navigate(patientId ? `/profile/edit/${patientId}` : '/profile/edit')}
               className="px-3 py-1.5 text-xs font-medium bg-amber-600 text-white rounded-md hover:bg-amber-700 transition-colors flex-shrink-0"
             >
               กรอกข้อมูล
