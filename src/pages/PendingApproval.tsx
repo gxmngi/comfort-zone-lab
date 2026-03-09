@@ -6,17 +6,19 @@ import { Clock, RefreshCw, LogOut, ShieldCheck } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 export default function PendingApproval() {
-  const { signOut } = useAuth();
-  const { profile, refetch } = useProfile();
+  const { signOut, user, loading: authLoading } = useAuth();
+  const { profile, refetch, loading: profileLoading } = useProfile();
   const navigate = useNavigate();
   const [refreshing, setRefreshing] = useState(false);
 
   // Auto-redirect when status changes to approved
   useEffect(() => {
+    if (authLoading || profileLoading || !user) return;
+    
     if (profile?.doctor_status === 'approved') {
       navigate('/doctor-menu');
     }
-  }, [profile?.doctor_status, navigate]);
+  }, [profile?.doctor_status, user, authLoading, profileLoading, navigate]);
 
   const handleSignOut = async () => {
     await signOut();

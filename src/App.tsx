@@ -44,13 +44,16 @@ function DoctorProtectedRoute({ children }: { children: React.ReactNode }) {
 
   const role = profile?.role || user?.user_metadata?.role || 'user';
 
+  // If we are currently on the pending approval page, don't redirect away unless approved
+  const isApproved = profile?.doctor_status === 'approved';
+
   // Block non-doctor users entirely
   if (role !== 'doctor') {
     return <Navigate to="/menu" replace />;
   }
 
   // Block unapproved doctors
-  if (profile?.doctor_status !== 'approved') {
+  if (!isApproved) {
     return <Navigate to="/pending-approval" replace />;
   }
 
