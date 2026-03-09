@@ -2,10 +2,9 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 
 // ─── Configuration ─────────────────────────────────────────────────────────────
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
-// 60s window is the minimum recommended for reliable EDA tonic decomposition
-// and HRV MedianNN estimation (NeuroKit2 docs, Task Force 1996)
-const BUFFER_SIZE = 60;        // Collect 60 seconds of data before predicting
-const PREDICT_INTERVAL = 60;   // Re-predict every 60 seconds
+// 900s window (15 minutes) is required for removing 2-minute baseline
+const BUFFER_SIZE = 900;       // Collect 15 minutes of data before predicting
+const PREDICT_INTERVAL = 60;   // Re-predict every 60 seconds using the 15-minute window
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 export interface ComfortPrediction {
@@ -39,6 +38,7 @@ export function useComfortPrediction(
   edaValue: number | undefined,
   ppgValue: number | undefined,
   bmi: number | undefined,
+  shouldPredict: boolean = true
 ): UseComfortPredictionReturn {
   const [prediction, setPrediction] = useState<ComfortPrediction | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -55,11 +55,15 @@ export function useComfortPrediction(
   useEffect(() => {
     const checkHealth = async () => {
       try {
-        const res = await fetch(`${BACKEND_URL}/health`, { signal: AbortSignal.timeout(3000) });
+        const res = await fetch(`${BACKEND_URL}/health`, { signal: AbortSignal.timeout(60000) });
         if (res.ok) {
           setBackendOnline(true);
+        } else {
+          console.warn('Backend Health Check Failed:', res.status, res.statusText);
+          setBackendOnline(false);
         }
-      } catch {
+      } catch (err) {
+        console.error('Backend Health Check Error:', err);
         setBackendOnline(false);
       }
     };
@@ -82,7 +86,7 @@ export function useComfortPrediction(
           ppg_readings: ppg,
           sampling_rate: 1,
         }),
-        signal: AbortSignal.timeout(10000),
+        signal: AbortSignal.timeout(60000),
       });
 
       if (!res.ok) {
@@ -112,6 +116,16 @@ export function useComfortPrediction(
 
   // ── Buffer incoming data + trigger prediction ──
   useEffect(() => {
+    if (!shouldPredict) {
+      // If we shouldn't predict, clear the buffer so we don't use stale data later
+      if (edaBuffer.current.length > 0) {
+        edaBuffer.current = [];
+        ppgBuffer.current = [];
+        setBufferCount(0);
+      }
+      return;
+    }
+
     if (edaValue === undefined || ppgValue === undefined) return;
 
     edaBuffer.current.push(edaValue);
@@ -141,7 +155,7 @@ export function useComfortPrediction(
       lastPredictTime.current = now;
       callPredict(edaSnapshot, ppgSnapshot);
     }
-  }, [edaValue, ppgValue, bmi, callPredict]);
+  }, [edaValue, ppgValue, bmi, callPredict, shouldPredict]);
 
   return {
     prediction,
