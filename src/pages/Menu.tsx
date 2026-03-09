@@ -42,14 +42,16 @@ const menuItems = [
 ];
 
 export default function Menu() {
-  const { signOut, user } = useAuth();
-  const { profile } = useProfile();
+  const { signOut, user, loading: authLoading } = useAuth();
+  const { profile, loading: profileLoading } = useProfile();
   const navigate = useNavigate();
 
   // Robust role check
   const role = profile?.role || user?.user_metadata?.role || 'user';
 
   useEffect(() => {
+    if (authLoading || profileLoading || !user) return;
+
     if (role === 'doctor') {
       if (profile?.doctor_status === 'approved') {
         navigate('/doctor-menu');
@@ -57,7 +59,7 @@ export default function Menu() {
         navigate('/pending-approval');
       }
     }
-  }, [role, profile?.doctor_status, navigate]);
+  }, [role, profile?.doctor_status, user, authLoading, profileLoading, navigate]);
 
   const handleSignOut = async () => {
     await signOut();
