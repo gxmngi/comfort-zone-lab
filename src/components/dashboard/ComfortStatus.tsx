@@ -46,7 +46,7 @@ export function ComfortStatus({ level, isPredicting, lastPredictedAt, className 
   const StatusIcon = statusConfig.statusIcon;
 
   return (
-    <div className={cn('medical-card overflow-hidden transition-all duration-300 flex flex-col justify-between', className)}>
+    <div className={cn('medical-card overflow-hidden transition-all duration-300 flex flex-col justify-between min-h-[300px]', className)}>
       {/* Header */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
